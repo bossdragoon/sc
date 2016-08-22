@@ -1,0 +1,25 @@
+/*#menu .btn-primary {
+    background-color: #fff;
+    border-color: #ccc;
+    color: #333;
+}*/
+
+@media only screen and (max-width: 767px){
+    /* styles for browsers smaller than  768px; */
+    .jumbotron{
+        text-align: center;
+        background-color: #D5D5D5;
+    }
+}
+@media only screen and (min-width:768px) {
+    /* styles for browsers larger than 768px; */
+    .jumbotron{
+        background-image: url("../../../public/images/NetworlManimg.png");
+        background-repeat: no-repeat;
+        background-position: right;
+        background-color: #D5D5D5; 
+		background-size: 290px 220px;
+		
+    }
+}
+

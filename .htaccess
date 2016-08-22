@@ -1,0 +1,21 @@
+RewriteEngine On
+
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-l
+
+RewriteRule ^(.+)$ index.php?url=$1 [QSA,L]
+#RewriteRule ^(.+)$ index.php?url=$1 [QSA,L]
+
+#RewriteRule ^Password.html$    Forget.php  [L]
+#RewriteRule ^101-1.html$    PDF_101_1.php  [L]
+#RewriteRule ^101-2.html$    PDF_101_2.php  [L]
+#RewriteRule ^102.html$    PDF_102.php  [L]
+#RewriteRule ^103.html$    PDF_103.php  [L]
+#RewriteRule ^Password.html$    Forget.php  [L]
+#RewriteRule ^([a-zA-Z]+).html    index.php?option=$1  [L]
+#RewriteRule ^([a-zA-Z0-9_]+)-([a-zA-Z0-9_]+).html(.*)  index.php?option=$1&to=$2 [L]
+#RewriteRule ^([a-zA-Z0-9_]+)-([a-zA-Z0-9_]+)-id.html(.*)  index.php?option=$1&to=$2&id=$3 [L]
+#RewriteRule ^([0-9]+).html(.*)  barcode.php?barcode=$1 [L]
+#RewriteRule ^PDF-([0-9_]+)(.*)  file/$1 [L]
+#RewriteRule ^([0-9_]+)-Massage$  Comment.php?id=$1 [L]
