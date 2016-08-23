@@ -23,11 +23,28 @@ $active = ' class="active"';
                             <input type="text" id="date1" name="date1" class="form-control" value="<?= date('Y-m-d') ?>" />
                         </div>
                     </div>
-
-
                 </div>
-
-                <div class="form-group" id="div_group_select_shift">
+                
+                <div class="form-group">
+                    <label class="col-lg-2 control-label" for="select_shift">เลือกเวร :</label>
+                    <div class="col-lg-10" id="div_select_shift" name="div_select_shift">
+                        <div class="form-group row">
+                            <div class="col-lg-10">
+                                <select class="form-control" id="select_shift" name="select_shift">
+                                    <?php
+                                    foreach ($this->getShift as $value) {
+                                        echo "<option value='{$value}' >{$value}</option>";
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                            <div class="col-lg-2">
+                                <button type="button" id="btn_submit" class="btn btn-primary col-lg-12">Call Data</button> 
+                            </div>
+                        </div>                        
+                    </div>
+                </div>                
+<!--                <div class="form-group" id="div_group_select_shift">
                     <label class="form-group col-xs-12 col-lg-9" for="div_select_shift">เลือกเวร :</label>
                     <div class="form-group col-lg-9" id="div_select_shift" name="div_select_shift">
                         <select class="form-control" id="select_shift" name="select_shift">
@@ -38,14 +55,11 @@ $active = ' class="active"';
                             ?>
                         </select>
                     </div>
-
                     <div class="col-xs-5 col-lg-5 text-center">
                         <button type="button" id="btn_submit" class="btn btn-primary col-lg-12">Call Data</button>             
                     </div>
-
                     <br>
-
-                </div>
+                </div>-->
 
                 <div class="form-group" id="group_select_dept" name="group_select_dept">
                     <label class="control-label col-sm-2" for="select_dept">Ward/หน่วยงาน :</label>
@@ -88,7 +102,7 @@ $active = ' class="active"';
                 </div>
             </div>
         </div>
-
+        <hr>
         <div class="form-group">
             <label class="col-sm-2 control-label" for="show_dialog"></label> 
             <div id="supply_mode" class="col-sm-10" >
