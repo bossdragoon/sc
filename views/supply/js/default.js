@@ -27,12 +27,14 @@ $(function () {
     var visiblePages_Items = 10;
     var perPage_Items = 10;
 
+    $('#group_select_dept').hide();
+    $('#div_search').hide();
+    
     if ($('#username').val() === 'komsan') {
         $('#inlineRadio2').prop('checked', true);
         $('#mainForm').removeClass('container');
         $('#mainForm').addClass('form-horizontal');
     }
-
 
     $('#inlineRadio1').on('change', function () {
         $('#mainForm').removeClass('form-horizontal');
@@ -44,6 +46,16 @@ $(function () {
         $('#mainForm').addClass('form-horizontal');
     });
 
+ $('#date1').datepicker({
+        format: "yyyy-mm-dd",
+        language: "th",
+        autoclose: true,
+        todayHighlight: true,
+        todayBtn: "linked",
+        orientation: "top"
+
+    });
+    
     highlightSelButton();
     callData(); 
     
@@ -72,12 +84,12 @@ $(function () {
         //remove highlight all button
         $('#supply_mode').find(":button").filter(function (index) {
             return $(this).hasClass("btn-primary");
-        }).removeClass("btn-primary").addClass("btn-link");
+        }).removeClass("btn-primary").addClass("btn-default"); 
 
         //highlight
         $('#supply_mode').find(":button").filter(function (index) {
             return ($(this).data("mode") === mode ? true : false);
-        }).removeClass("btn-link").addClass("btn-primary");
+        }).removeClass("btn-default").addClass("btn-primary");
     }
 
     function callData() {
@@ -139,7 +151,8 @@ $(function () {
             var tbDatas = [];
             var tbListing = {
                 'supply_id': '#',
-                'supply_date': 'วันที่ลงรายการ',
+                'supply_date': 'วันที่เบิก',
+                'supply_shift': 'เวร',
                 'depart_name': 'หน่วยงาน'
             };
 

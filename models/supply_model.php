@@ -5,31 +5,29 @@ class Supply_Model extends Model {
     public function __construct() {
         parent::__construct();
     }
-    
+
     public function sqlSupply() {
         $keyword = filter_input(INPUT_GET, 'keyword'); //false if not set,null if filter fail
         $dept = filter_input(INPUT_GET, 'select_dept'); //false if not set,null if filter fail
         $mode = filter_input(INPUT_GET, 'supply_mode'); //false if not set,null if filter fail
-
-        
 //        $sqlCondition .= ($date ? "AND (kpi_date BETWEEN '{$date1}' AND '{$date2}') " : "");
         $sqlCondition .= ($keyword ? "AND (kpi_name LIKE '%{$keyword}%' or kpi_jobs LIKE '%{$keyword}%' or kpi_note LIKE '%{$keyword}%') " : "");
-        
-        switch ($mode){
+
+        switch ($mode) {
             case "receive2": $sqlCondition .= "AND si.supply_items_receive2 > 0 ";
             case "divide": $sqlCondition .= "AND si.supply_items_divide > 0 ";
             case "receive": $sqlCondition .= "AND si.supply_items_receive > 0 ";
-            case "send": $sqlCondition .= "AND si.supply_items_send > 0 "; 
+            case "send": $sqlCondition .= "AND si.supply_items_send > 0 ";
             default : break;
-            
         }
-        
+
         $sqlCondition .= ($dept ? "AND d.depart_id = {$dept} " : "");
 
         $sql = 'SELECT '
                 . 's.supply_id, '
                 . 's.supply_date, '
                 . 's.supply_depart, '
+                . 's.supply_shift, '
                 . 's.supply_consignee, '
                 . 's.supply_consignor, '
                 . 's.supply_divider, '
@@ -48,17 +46,18 @@ class Supply_Model extends Model {
                 . 'i.items_name, '
                 . 'i.items_type, '
                 . 'it.items_type_name, '
-                . 'd.depart_name'
-                . ' FROM'
-                . ' supply AS s'
-                . ' LEFT OUTER JOIN supply_items AS si ON s.supply_id = si.supply_id'
+                . 'd.depart_name, '
+                . 'count(si.items_id) as cnt_items'
+                . ' FROM supply_items AS si'
+                . ' LEFT OUTER JOIN supply AS s ON s.supply_id = si.supply_id'
                 . ' LEFT OUTER JOIN items AS i ON si.items_id = i.items_id'
                 . ' LEFT OUTER JOIN items_type AS it ON i.items_type = it.items_type_id'
                 . ' LEFT OUTER JOIN supply_depart AS d ON s.supply_depart = d.depart_id'
                 . ' WHERE 1 ' . $sqlCondition
                 . ' GROUP BY s.supply_id DESC'
                 . ' ORDER BY s.supply_date DESC';
-
+        
+        //echo $sql;
         return $sql;
     }
 
@@ -97,14 +96,15 @@ class Supply_Model extends Model {
         $sql = $this->sqlSupply();
         $sql = $sql . $limit;
         $data = $this->db->select($sql);
-        
+
         return $data;
-    }    
-    
-    
-    
-    
-    
+    }
+
+    function getDataShift() {
+        $sql = 'SHOW COLUMNS FROM supply WHERE Field  = "supply_shift"';
+        $data = $this->db->select($sql);
+        return $data[0]['Type'];
+    }
     
     
 
@@ -277,11 +277,6 @@ class Supply_Model extends Model {
 //        return $data[0]['Type'];
 //    }
 //    
-//    function getStatus() {
-//        $sql = 'SHOW COLUMNS FROM product_items WHERE Field  = "items_status"';
-//        $data = $this->db->select($sql);
-//        return $data[0]['Type'];
-//    }
 //
 //    public function insertDataByID() {
 //
@@ -438,5 +433,4 @@ class Supply_Model extends Model {
 //            return true;
 //        }
 //    }
-
 }

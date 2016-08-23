@@ -3,60 +3,108 @@ $User = Session::get('User');
 $active = ' class="active"';
 ?>
 
-<div class="container" id="mainForm" name ="mainForm">
+<div class="form-horizontal" id="mainForm" name ="mainForm">
     <h1>จัดการเบิก-จ่ายอุปกรณ์</h1>
     <p>รายการเบิก-จ่ายอุปกรณ์</p>
     <?php
     $logged = Session::get(SESSION_USER);
     ?>
-    <input type="hidden" id="username" name="username"  value="<?= $logged['person_username'] ?>" />
+    <div class="form-horizontal" > 
+        <input type="hidden" id="username" name="username"  value="<?= $logged['person_username'] ?>" />
 
-    <div class="row">
-        <div class="col-md-11">
+        <div class="row">
+            <div class="col-md-11">
 
-            <div class="form-group">
-                <label class="control-label col-sm-2" for="select_dept">Ward/หน่วยงาน :</label>
-                <div class="col-sm-8"id="div_select_dept" name="div_select_dept" >
-                    <select class="form-control " id="select_dept" name="select_dept">
-                        <option value="">- - ทั้งหมด - -</option>
-                        <?php
-                        foreach ($this->getDepart as $value) {
-                            echo "<option value='{$value[depart_id]}' >{$value[depart_name]}</option>";
-                        }
-                        ?>
-                    </select>
+                <div class="form-group" id="div_select_date" name="div_select_date" >
+                    <div class="form-group col-xs-12 col-lg-9" id="div_date1">
+                        <label class="control-label col-lg-5" for="search">เลือกวันที่ :</label>
+                        <div class="input-group col-xs-7 col-lg-7">
+                            <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                            <input type="text" id="date1" name="date1" class="form-control" value="<?= date('Y-m-d') ?>" />
+                        </div>
+                    </div>
+
+
                 </div>
-                <div class="col-sm-2" >
-                    <button type="button" id="btn_Call"  class="btn btn-success" data-target="" data-toggle="modal" > Call Data
-                        <span></span>
-                    </button>
+
+                <div class="form-group" id="div_group_select_shift">
+                    <label class="form-group col-xs-12 col-lg-9" for="div_select_shift">เลือกเวร :</label>
+                    <div class="form-group col-lg-9" id="div_select_shift" name="div_select_shift">
+                        <select class="form-control" id="select_shift" name="select_shift">
+                            <?php
+                            foreach ($this->getShift as $value) {
+                                echo "<option value='{$value}' >{$value}</option>";
+                            }
+                            ?>
+                        </select>
+                    </div>
+
+                    <div class="col-xs-5 col-lg-5 text-center">
+                        <button type="button" id="btn_submit" class="btn btn-primary col-lg-12">Call Data</button>             
+                    </div>
+
+                    <br>
+
+                </div>
+
+                <div class="form-group" id="group_select_dept" name="group_select_dept">
+                    <label class="control-label col-sm-2" for="select_dept">Ward/หน่วยงาน :</label>
+                    <div class="col-sm-8"id="div_select_dept" name="div_select_dept" >
+                        <select class="form-control " id="select_dept" name="select_dept">
+                            <option value="">- - ทั้งหมด - -</option>
+                            <?php
+                            foreach ($this->getDepart as $value) {
+                                echo "<option value='{$value[depart_id]}' >{$value[depart_name]}</option>";
+                            }
+                            ?>
+                        </select>
+                    </div>
+                    <div class="col-sm-2" >
+                        <button type="button" id="btn_Call"  class="btn btn-success" data-target="" data-toggle="modal" > Call Data
+                            <span></span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group has-feedback" id="div_search">
+                    <label class="control-label col-sm-2" for="search">ค้นใบเบิก :</label>
+                    <div class="col-sm-10" >
+                        <input type="text" id="search" name="search" class="form-control" />
+                        <span class="glyphicon glyphicon-search form-control-feedback"></span>
+                    </div>
+                </div>
+
+                <div class="form-group has-feedback" id="div_size">
+                    <label class="control-label col-sm-2" for="search">ขนาด Page :</label>
+                    <div class="col-sm-10" >
+                        <label class="radio-inline">
+                            <input type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1" > ย่อ
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2" checked> ขยาย
+                        </label> 
+                    </div>
+
                 </div>
             </div>
-
-            <div class="form-group has-feedback" id="div_search">
-                <label class="control-label col-sm-2" for="search">ค้นใบเบิก :</label>
-                <div class="col-sm-10" >
-                    <input type="text" id="search" name="search" class="form-control" />
-                    <span class="glyphicon glyphicon-search form-control-feedback"></span>
-                </div>
-            </div>
-
-            <div class="form-group has-feedback" id="div_size">
-                <label class="control-label col-sm-2" for="search">ขนาด Page :</label>
-                <div class="col-sm-10" >
-                    <label class="radio-inline">
-                        <input type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1" checked> ย่อ
-                    </label>
-                    <label class="radio-inline">
-                        <input type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2"> ขยาย
-                    </label> 
-                </div>
-
-            </div>
-
         </div>
-    </div>
 
+        <div class="form-group">
+            <label class="col-sm-2 control-label" for="show_dialog"></label> 
+            <div id="supply_mode" class="col-sm-10" >
+                <button type="button" id="dgSend" data-mode="send" class="btn btn-default col-sm-2" >ส่งอุปกรณ์</button> 
+                <button type="button" id="dgReceive" data-mode="receive" class="btn btn-default col-sm-2" >รับอุปกรณ์</button> 
+                <button type="button" id="dgDivide" data-mode="divide" class="btn btn-default col-sm-2" >จ่ายอุปกรณ์</button> 
+                <button type="button" id="dgReceive2" data-mode="receive2" class="btn btn-default col-sm-2" >รับอุปกรณ์ปราศจากเชื้อ</button> 
+
+            </div>
+            <div class="col-sm-10" >
+                <div class="pagin" align="right" style="margin: -20px 10px;"></div>
+            </div>
+            <input type="hidden" id="select_supply_mode" value="" />
+        </div>
+
+    </div>
 
     <div class="modal fade bs-example-modal-lg input-dialog" tabindex="-1" data-focus-on="input:first">
 
@@ -253,28 +301,17 @@ $active = ' class="active"';
             </div>
         </div>
     </div>
+
+
+
+    <br>
+    <div class="form-horizontal" > 
+        <div id="listings"></div> 
+    </div>
+
     <div >
         <p>host:=[<?= DB_HOST ?>] db_name:=[<?= DB_NAME ?>]</p>
     </div>
-
-    <div class="form-group">
-        <label class="col-sm-2 control-label" for="show_dialog"></label> 
-        <div id="supply_mode" class="col-sm-10" >
-            <button type="button" id="dgSend" data-mode="send" class="btn btn-link col-sm-2" >ส่งอุปกรณ์</button> 
-            <button type="button" id="dgReceive" data-mode="receive" class="btn btn-link col-sm-2" >รับอุปกรณ์</button> 
-            <button type="button" id="dgDivide" data-mode="divide" class="btn btn-link col-sm-2" >จ่ายอุปกรณ์</button> 
-            <button type="button" id="dgReceive2" data-mode="receive2" class="btn btn-link col-sm-2" >รับอุปกรณ์ปราศจากเชื้อ</button> 
-        </div>
-        <div class="col-sm-10" >
-            <div class="pagin" align="right" style="margin: -20px 10px;"></div>
-        </div>
-        <input type="hidden" id="select_supply_mode" value="" />
-    </div>
-
-    <div class="form-horizontal" > 
-        <div id="listings"></div>
-    </div>
-
 </div>
 
 

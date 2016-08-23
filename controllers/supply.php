@@ -4,19 +4,29 @@ class Supply extends Controller {
 
     function __construct() {
         parent::__construct();
-        $this->view->js = array('supply/js/default.js');
-        $this->view->css = array('../public/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css'
-            , '../public/awesome-bootstrap-checkbox/Font-Awesome/css/font-awesome.css');
 
+        $this->view->css = array('../public/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css',
+            '../public/awesome-bootstrap-checkbox/Font-Awesome/css/font-awesome.css',
+            '../public/bootstrap-datetimepicker/css/bootstrap-datepicker3.css',
+            '../public/css/no-more-tables.css',
+            'products/css/default.css'
+        );
+
+
+
+        $this->view->js = array('supply/js/default.js',
+            '../public/bootstrap-datetimepicker/js/bootstrap-datepicker.js',
+            '../public/bootstrap-datetimepicker/locales/bootstrap-datepicker.th.min.js'
+        );
     }
 
     function index() {
+        $this->view->getShift = $this->getShift();
         $this->view->getDepart = $this->getDepart();
 //        $this->view->getInputReadonly = $this->getInputReadonly();
 //        $this->view->getFormInput = $this->getFormInput();
 //        $this->view->getFontBold = $this->getFontBold();
 //        $this->view->getNotNull = $this->getNotNull();
-//        $this->view->getStatus = $this->getStatus();
 //        $this->view->getFormStatusY = $this->getFormStatus();
         $this->view->rander('supply/index');
     }
@@ -29,6 +39,7 @@ class Supply extends Controller {
         $data = $this->model->getDataListings();
         echo json_encode($data);
     }
+
 //
 //    function getByID() {
 //        $data = $this->model->getDataByID();
@@ -64,13 +75,22 @@ class Supply extends Controller {
         $data = $this->model->pagination();
         echo json_encode($data);
     }
+
 //
-    
+
     public function getDepart() {
         $this->loadModel('depart');
         return $this->model->departRs();
     }
 
+    function getShift() {
+        $result = $this->model->getDataShift();
+        $enumList = explode(",", str_replace("'", "", substr($result, 5, (strlen($result) - 6))));
+       
+        return $enumList;
+    }
+
+//    
 //    function getType() {
 //        $result = $this->model->getType();
 //        $enumList = explode(",", str_replace("'", "", substr($result, 5, (strlen($result) - 6))));
@@ -101,11 +121,6 @@ class Supply extends Controller {
 //        return $enumList;
 //    }
 //    
-//    function getStatus() {
-//        $result = $this->model->getStatus();
-//        $enumList = explode(",", str_replace("'", "", substr($result, 5, (strlen($result) - 6))));
-//        return $enumList;
-//    }
 //
 //    public function getFormStatus() {
 //        $this->loadModel('productForm');
@@ -127,5 +142,4 @@ class Supply extends Controller {
 //        echo json_encode($data);
 //        
 //    }
-    
 }
