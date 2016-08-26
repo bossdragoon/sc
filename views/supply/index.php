@@ -315,15 +315,34 @@ $active = ' class="active"';
             </div>
         </div>
     </div>
-
-
-
+    
     <br>
+    
     <div class="form-horizontal" > 
-        <div id="listings"></div> 
+        <table id='tbService' class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th style="text-align: center;" width="50px" >#</th>
+                    <th style="text-align: center;" width="180px">หน่วยงาน</th>
+                    <th style="text-align: center;" width="100px">จำนวนเบิก<br>(รายการ)</th>
+                    <th style="text-align: center;" width="150px">ส่งอุปกรณ์</th>
+                    <th style="text-align: center;" width="150px">เวลา<br>ส่งอุปกรณ์</th>
+                    <th style="text-align: center;" width="150px">รับอุปกรณ์</th>
+                    <th style="text-align: center;" width="150px">เวลา<br>รับอุปกรณ์</th>
+                    <th style="text-align: center;" width="90px">จ่ายอุปกรณ์</th>
+                    <th style="text-align: center;" width="150px">เวลา<br>จ่ายอุปกรณ์</th>
+                    <th style="text-align: center;" width="170px">รับอุปกรณ์<br>ปราศจากเชื้อ</th>
+                    <th style="text-align: center;" width="150px">เวลา<br>รับอุปกรณ์..</th>
+                    <th style="text-align: center;" width="40px">จัดการ</th>
+                </tr>
+            </thead>
+            <tbody id="listings">            
+            </tbody>
+        </table>
+
     </div>
 
-    <div >
+    <div>
         <p>host:=[<?= DB_HOST ?>] db_name:=[<?= DB_NAME ?>]</p>
     </div>
 </div>

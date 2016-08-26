@@ -23,40 +23,67 @@ class Supply_Model extends Model {
 
         $sqlCondition .= ($dept ? "AND d.depart_id = {$dept} " : "");
 
-        $sql = 'SELECT '
-                . 's.supply_id, '
-                . 's.supply_date, '
-                . 's.supply_depart, '
-                . 's.supply_shift, '
-                . 's.supply_consignee, '
-                . 's.supply_consignor, '
-                . 's.supply_divider, '
-                . 's.supply_consignor2, '
-                . 's.supply_consignee_time, '
-                . 's.supply_consignor_time, '
-                . 's.supply_divider_time, '
-                . 's.supply_consignor2_time, '
-                . 'si.supply_items_id, '
-                . 'si.supply_items_send, '
-                . 'si.supply_items_receive, '
-                . 'si.supply_items_divide, '
-                . 'si.supply_items_remain, '
-                . 'si.supply_items_description, '
-                . 'si.items_id, '
-                . 'i.items_name, '
-                . 'i.items_type, '
-                . 'it.items_type_name, '
-                . 'd.depart_name, '
-                . 'count(si.items_id) as cnt_items'
+        $sql = 'SELECT'
+                . ' s.supply_depart,'
+                . ' d.depart_name, '
+                . ' s.supply_id,'
+                . ' s.supply_date,'
+                . ' s.supply_shift,'
+                . ' s.supply_consignee,'
+                . ' s.supply_consignee_time,'
+                . ' s.supply_consignor,'
+                . ' s.supply_consignor_time,'
+                . ' s.supply_divider,'
+                . ' s.supply_divider_time,'
+                . ' s.supply_consignor2,'
+                . ' s.supply_consignor2_time,'
+                . ' si.supply_items_send,'
+                . ' si.supply_items_receive,'
+                . ' si.supply_items_divide,'
+                . ' si.supply_items_remain,'
+                . ' si.supply_items_description, '
+                . ' count(si.items_id) as cnt_items,'
+                . ' "send" as supply_status'
                 . ' FROM supply_items AS si'
                 . ' LEFT OUTER JOIN supply AS s ON s.supply_id = si.supply_id'
-                . ' LEFT OUTER JOIN items AS i ON si.items_id = i.items_id'
-                . ' LEFT OUTER JOIN items_type AS it ON i.items_type = it.items_type_id'
-                . ' LEFT OUTER JOIN supply_depart AS d ON s.supply_depart = d.depart_id'
-                . ' WHERE 1 ' . $sqlCondition
-                . ' GROUP BY s.supply_id DESC'
-                . ' ORDER BY s.supply_date DESC';
-        
+                . ' LEFT OUTER JOIN supply_depart AS d ON d.depart_id = s.supply_depart'
+                . ' WHERE 1 = 1 '
+                . ' and s.supply_date = "2016-08-23"'
+                . ' and s.supply_shift = "morning"'
+                . ' GROUP BY d.depart_name '
+                . ' UNION'
+                . ' SELECT '
+                . ' depart_id as supply_depart,'
+                . ' depart_name,'
+                . ' 0 as supply_id,'
+                . ' "0000-00-00" as supply_date,'
+                . ' "" as supply_shift,'
+                . ' "" as supply_consignee,'
+                . ' "0000-00-00 00:00:00" as supply_consignee_time,'
+                . ' "" as supply_consignor,'
+                . ' "0000-00-00 00:00:00" as supply_consignor_time,'
+                . ' "" as supply_divider,'
+                . ' "0000-00-00 00:00:00" as supply_divider_time,'
+                . ' "" as supply_consignor2,'
+                . ' "0000-00-00 00:00:00" as supply_consignor2_time,'
+                . ' 0 as supply_items_send,'
+                . ' 0 as supply_items_receive,'
+                . ' 0 as supply_items_divide,'
+                . ' 0 as supply_items_remain,'
+                . ' 0 as supply_items_description,'
+                . ' 0 as cnt_items,'
+                . ' "not_send" as supply_status'
+                . ' FROM supply_depart'
+                . ' WHERE 1 = 1 '
+                . ' and cssd_status = "Y"'
+                . ' AND depart_id not in ('
+                . ' SELECT supply_depart from supply'
+                . ' where supply_date = "2016-08-23"'
+                . ' and supply_shift = "morning"'
+                . ' )'
+                . ' ORDER BY supply_status desc,depart_name';
+
+        //$sqlCondition
         //echo $sql;
         return $sql;
     }
@@ -94,7 +121,7 @@ class Supply_Model extends Model {
         $limit = $this->sqlLIMIT();
 
         $sql = $this->sqlSupply();
-        $sql = $sql . $limit;
+        //$sql = $sql . $limit;
         $data = $this->db->select($sql);
 
         return $data;
@@ -105,8 +132,6 @@ class Supply_Model extends Model {
         $data = $this->db->select($sql);
         return $data[0]['Type'];
     }
-    
-    
 
 //    public function Pagination() {
 //        $word = explode(' ', $_POST['search']);

@@ -3,7 +3,7 @@ $(function () {
     console.log('Refresh...');
     //checkDivTechStatus();
     var perPage = 10;
-    var cPage = 0;
+    var cPage = 1;
     var visiblePages = 5;
     var delay = 1000; //1 seconds
     var timer;
@@ -29,7 +29,7 @@ $(function () {
 
     $('#group_select_dept').hide();
     $('#div_search').hide();
-    
+
     if ($('#username').val() === 'komsan') {
         $('#inlineRadio2').prop('checked', true);
         $('#mainForm').removeClass('container');
@@ -46,7 +46,7 @@ $(function () {
         $('#mainForm').addClass('form-horizontal');
     });
 
- $('#date1').datepicker({
+    $('#date1').datepicker({
         format: "yyyy-mm-dd",
         language: "th",
         autoclose: true,
@@ -55,11 +55,11 @@ $(function () {
         orientation: "top"
 
     });
-    
+
     highlightSelButton();
-    callData(); 
-    
-    
+    callData();
+
+
     /*======================================================================
      * SUPPLY
      ======================================================================*/
@@ -84,7 +84,7 @@ $(function () {
         //remove highlight all button
         $('#supply_mode').find(":button").filter(function (index) {
             return $(this).hasClass("btn-primary");
-        }).removeClass("btn-primary").addClass("btn-default"); 
+        }).removeClass("btn-primary").addClass("btn-default");
 
         //highlight
         $('#supply_mode').find(":button").filter(function (index) {
@@ -123,6 +123,7 @@ $(function () {
                 });
             }
             callDataItem(cPage, mode);
+            $('#pagination').hide();
         }, 'json');
 
     }
@@ -145,101 +146,49 @@ $(function () {
             var strTable = "";
             var color = "";
             var id = 0;
-            $('#listings').html('');
+            var j = 0;
+            var cnt_items = "";
+            var supply_consignee_time = "";
+            var supply_consignor_time = "";
+            var supply_divider_time = "";
+            var supply_consignor2_time = "";
+            $('#listings').empty();
 
-            var tbFields = [];
-            var tbDatas = [];
-            var tbListing = {
-                'supply_id': '#',
-                'supply_date': 'วันที่เบิก',
-                'supply_shift': 'เวร',
-                'depart_name': 'หน่วยงาน'
-            };
-
-            $.each(tbListing, function (k, v) {
-                tbFields.push(v);
-                tbDatas.push(k);
-            });
-            
-        switch (mode){
-            case "send": 
-                tbFields.push('ผู้รับ'); tbDatas.push('supply_consignee');
-                tbFields.push('เวลา'); tbDatas.push('supply_consignee_time');
-                break;
-            case "receive": 
-                tbFields.push('ผู้ส่ง'); tbDatas.push('supply_consignor');
-                tbFields.push('เวลา'); tbDatas.push('supply_consignor_time');
-                break;
-            case "divide": 
-                tbFields.push('ผู้จ่าย'); tbDatas.push('supply_divider');
-                tbFields.push('เวลา'); tbDatas.push('supply_divider_time');
-                break;
-            case "receive2": 
-                tbFields.push('ผู้รับอุปกรณ์ปราศจากเชื้อ'); tbDatas.push('supply_consignor2');
-                tbFields.push('เวลา'); tbDatas.push('supply_consignor2_time');
-                break;
-            default : break;
-            
-        }
-            
-            tbFields.push(''); //manage zone
-
-
-            strTable += '<table class = "table table-bordered table-hover"> \n\
-                        <thead> \n\ ';
-
-            for (var h = 0; h < tbFields.length; h++) {
-                strTable += '<th> ' + tbFields[h] + ' </th> \n\ ';
-            }
-
-            strTable += '</thead>    \n\
-                        <tbody> ';
-
+            console.log(o);
             for (var i = 0; i < o.length; i++) {
-                id = i + 1;
-                if ((i % 2) === 1) {
-                    color = 'info';
-                } else {
-                    color = '';
-                }
-                if (o[i].depart_status === '0') {
-                    danger = 'danger';
-                } else {
-                    danger = '';
-                }
+                j = i + 1;
+                color = 'style="background-color:#FFFFCC;"';
+                color = 'style="background-color:' + o[i].status_color + ';"';
+                strTable += '<tr class="dataTr' + o[i].data_id + ' cls">';
+                //style="background-color:#FFFFCC;" 
+                cnt_items = (o[i]['cnt_items'] >= 1 ? o[i]['cnt_items'] : "");
+                supply_consignee_time = (o[i]['supply_consignee_time'] !== '0000-00-00 00:00:00' ? o[i]['supply_consignee_time'] : "");
+                supply_consignor_time = (o[i]['supply_consignor_time'] !== '0000-00-00 00:00:00' ? o[i]['supply_consignor_time'] : "");
+                supply_divider_time = (o[i]['supply_divider_time'] !== '0000-00-00 00:00:00' ? o[i]['supply_divider_time'] : "");
+                supply_consignor2_time = (o[i]['supply_consignor2_time'] !== '0000-00-00 00:00:00' ? o[i]['supply_consignor2_time'] : "");
+                strTable += ''
+                        + '<td align="right"  title="" >' + '<label id="' + i + '" >' + j + '</label></td>'
+                        + '<td align="left" title="" id="' + i + '<label id="' + i + '" >' + o[i]['depart_name'] + '</label></td>'
+                        + '<td align="right" title="" id="' + i + '">' + '<label id="' + i + '" >' + cnt_items + '</label></td>'
+                        + '<td align="left" title="" id="' + i + '<label id="' + i + '" >' + o[i]['supply_consignee'] + '</label></td>'
+                        + '<td align="left" title="" id="' + i + '<label id="' + i + '" >' + supply_consignee_time + '</label></td>'
+                        + '<td align="left" title="" id="' + i + '<label id="' + i + '" >' + o[i]['supply_consignor'] + '</label></td>'
+                        + '<td align="left" title="" id="' + i + '<label id="' + i + '" >' + supply_consignor_time + '</label></td>'
+                        + '<td align="left" title="" id="' + i + '<label id="' + i + '" >' + o[i]['supply_divider'] + '</label></td>'
+                        + '<td align="left" title="" id="' + i + '<label id="' + i + '" >' + supply_divider_time + '</label></td>'
+                        + '<td align="left" title="" id="' + i + '<label id="' + i + '" >' + o[i]['supply_consignor2'] + '</label></td>'
+                        + '<td align="left" title="" id="' + i + '<label id="' + i + '" >' + supply_consignor2_time + '</label></td>'
+                        + ' ';
 
-                strTable += '<tr class="' + color + ' ' + danger + '">';
-
-                for (var j = 0; j < tbDatas.length; j++) {
-                    var dt = o[i][tbDatas[j]];
-                    dt = (dt !== null ? dt : "");
-
-                    strTable += '<td> ' + dt + ' </td> \n\ ';
-                }
-
-                var editBt = '<a class="edit btn btn-info" rel="' + o[i].kpi_id + '" href="#" ><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a> ';
-                var delBt = '<a class="del btn btn-danger" rel="' + o[i].kpi_id + '" data-del-info="' + '[' + o[i].kpi_id + '] ' + o[i].kpi_jobs + '" href="#" ><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a> ';
-
-                strTable += '<td style="text-align:right;">';
-//                if (o.loginUse) {
-                strTable += editBt + delBt + '</td>';
-//                } else {
-//                    strTable += '<i class="fa fa-lock fa-lg" data-toggle="tooltip" data-placement="auto top" title="Please Login to Edit/Delete."></i>';
-//                }
-                strTable += '</td>';
                 strTable += '</tr>';
-
             }
-
-            strTable += '</tbody>\n\
-                    </table>';
 
             $('#listings').append(strTable);
 
         }, 'json');
 
     }
-    
+
     function alertHide() {
         $("#formAlert").hide();
     }
