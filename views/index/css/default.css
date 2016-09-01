@@ -16,9 +16,9 @@
     .jumbotron{
         background-image: url("../../../public/images/NetworlManimg.png");
         background-repeat: no-repeat;
-        background-position: right;
+        background-position: 98%;
         background-color: #D5D5D5; 
-		background-size: 290px 220px;
+		background-size: 230px 230px;
 		
     }
 }

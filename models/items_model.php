@@ -76,6 +76,16 @@ class Items_Model extends Model {
         $data = $this->db->select($sql);
         return $data;
     }
+    
+    function getDataItemsStatusY() {
+        $sql = "SELECT p.* 
+                FROM items p 
+                WHERE 1=1 and status = 'Y'
+                ORDER BY items_name ";
+      
+        $data = $this->db->select($sql);
+        return $data;
+    }
 
     function getDataStatus() {
         $sql = 'SHOW COLUMNS FROM items WHERE Field  = "status"';

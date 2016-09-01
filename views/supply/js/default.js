@@ -56,6 +56,25 @@ $(function () {
 
     });
 
+    $('#supply_date, #supply_consignee_date, #supply_consignor_date, #supply_divider_date, #supply_consignor2_date').datepicker({
+        format: "yyyy-mm-dd",
+        language: "th",
+        autoclose: true,
+        todayHighlight: true,
+        todayBtn: "linked",
+        orientation: "top"
+    });
+
+    $('#supply_consignee_time, #supply_consignor_tiem, #supply_divider_time, #supply_consignor2_time').timepicker({
+        minuteStep: 1,
+        template: 'modal',
+        appendWidgetTo: 'body',
+        showSeconds: false,
+        showMeridian: false,
+        defaultTime: false
+//        
+    });
+
     highlightSelButton();
     callData();
 
@@ -97,12 +116,14 @@ $(function () {
         var mode = ($("#select_supply_mode").val() !== "" ? $("#select_supply_mode").val() : "send");
 
         var keyword = $('#search').val(),
-                select_dept = $('#select_dept').val();
+                //select_dept = $('#select_dept').val(),
+                select_shift = $('#select_shift').val();
 
         var data = {
             'perPage': perPage,
             'keyword': keyword,
-            'select_dept': select_dept,
+            //'select_dept': select_dept,
+            'select_shift': select_shift,
             'supply_mode': mode
         };
 
@@ -133,28 +154,28 @@ $(function () {
         var mode = (mode !== "undefined" ? mode : "send");
 
         var keyword = $('#search').val(),
-                select_dept = $('#select_dept').val();
+                //select_dept = $('#select_dept').val(),
+                select_shift = $('#select_shift').val();
 
         var data = {
             'perPage': perPage,
             'keyword': keyword,
-            'select_dept': select_dept,
+            //'select_dept': select_dept,
+            'select_shift': select_shift,
             'supply_mode': mode
         };
 
         $.get('supply/getListings', data, function (o) {
             var strTable = "";
-            var color = "";
-            var id = 0;
             var j = 0;
             var cnt_items = "";
             var supply_consignee_time = "";
             var supply_consignor_time = "";
             var supply_divider_time = "";
             var supply_consignor2_time = "";
-            $('#listings').empty();
+            $('#listingsDataSupply').empty();
 
-            console.log(o);
+            //console.log(o);
             for (var i = 0; i < o.length; i++) {
                 j = i + 1;
                 color = 'style="background-color:#FFFFCC;"';
@@ -170,20 +191,24 @@ $(function () {
                         + '<td align="right"  title="" >' + '<label id="' + i + '" >' + j + '</label></td>'
                         + '<td align="left" title="" id="' + i + '<label id="' + i + '" >' + o[i]['depart_name'] + '</label></td>'
                         + '<td align="right" title="" id="' + i + '">' + '<label id="' + i + '" >' + cnt_items + '</label></td>'
-                        + '<td align="left" title="" id="' + i + '<label id="' + i + '" >' + o[i]['supply_consignee'] + '</label></td>'
+                        + '<td align="left" title="" id="' + i + '<label id="' + i + '" >' + o[i]['supply_consignee_name'] + '</label></td>'
                         + '<td align="left" title="" id="' + i + '<label id="' + i + '" >' + supply_consignee_time + '</label></td>'
-                        + '<td align="left" title="" id="' + i + '<label id="' + i + '" >' + o[i]['supply_consignor'] + '</label></td>'
+                        + '<td align="left" title="" id="' + i + '<label id="' + i + '" >' + o[i]['supply_consignor_name'] + '</label></td>'
                         + '<td align="left" title="" id="' + i + '<label id="' + i + '" >' + supply_consignor_time + '</label></td>'
-                        + '<td align="left" title="" id="' + i + '<label id="' + i + '" >' + o[i]['supply_divider'] + '</label></td>'
+                        + '<td align="left" title="" id="' + i + '<label id="' + i + '" >' + o[i]['supply_divider_name'] + '</label></td>'
                         + '<td align="left" title="" id="' + i + '<label id="' + i + '" >' + supply_divider_time + '</label></td>'
-                        + '<td align="left" title="" id="' + i + '<label id="' + i + '" >' + o[i]['supply_consignor2'] + '</label></td>'
+                        + '<td align="left" title="" id="' + i + '<label id="' + i + '" >' + o[i]['supply_consignor2_name'] + '</label></td>'
                         + '<td align="left" title="" id="' + i + '<label id="' + i + '" >' + supply_consignor2_time + '</label></td>'
+                        + '<td>'
+                        + '<a class="edit btn btn-info" rel="' + o[i].items_id + '" href="#" ><span class="glyphicon glyphicon-pencil" aria-hidden="true" title="แก้ไขรายการ"></span></a>'
+                        + '<a class="del btn btn-danger" rel="' + o[i].items_id + '" data-items-name="' + o[i].items_name + '" href="#" ><span class="glyphicon glyphicon-trash" aria-hidden="true" title="ลบรายการ"></span></a>'
+                        + '</td>'
                         + ' ';
 
                 strTable += '</tr>';
             }
 
-            $('#listings').append(strTable);
+            $('#listingsDataSupply').append(strTable);
 
         }, 'json');
 
@@ -194,10 +219,11 @@ $(function () {
     }
 
     /*** Edit and Delete Button ***/
-    $('#listings')
+    $('#listingsDataSupply')
             .on('click', ".edit", function () {
-                callItemsStatusY();
-                $('.input-dialog').modal("toggle");
+                //callItemsStatusY();
+                $('.frm-Management-Data').modal("toggle");
+                $("#headData").collapse('show');
 
                 editItem = $(this);
 
@@ -207,7 +233,7 @@ $(function () {
                 clearEditForm();
                 var id = $(this).attr('rel');
                 console.log("id:=" + id);
-                $.get('productItems/getByID', {'id': id}, function (o) {
+                $.get('supply/getSupplyItemsByID', {'id': id}, function (o) {
 
                     $('#items_code').prop("readonly", true);
                     $('#items_code').val(o[0].items_code);
@@ -236,6 +262,7 @@ $(function () {
 
                     $('#form_name').focus();
                     checkItemsType();
+
                 }, 'json');
 
                 return false;
