@@ -24,7 +24,7 @@ class Supply extends Controller {
 
     function index() {
         $this->view->getShift = $this->getShift();
-         $this->view->getOrderType = $this->getOrderType();
+        $this->view->getOrderType = $this->getOrderType();
         $this->view->getDepart = $this->getDepart();
         $this->view->getPersonalSupplyConsignee = $this->getPersonal();
         $this->view->getPersonalSupplyConsignor = $this->getPersonal();
@@ -32,6 +32,11 @@ class Supply extends Controller {
         $this->view->getPersonalSupplyConsignor2 = $this->getPersonal();
         $this->view->getItemsStatusY = $this->getItemsStatusY();
         $this->view->rander('supply/index');
+    }
+    
+    function print_preview() {
+        $this->view->getDataSupplyByID = $this->getSupplyByIDforPDF();
+        $this->view->randerContent('supply/print_preview');
     }
 
     function putSession() {
@@ -54,6 +59,10 @@ class Supply extends Controller {
     function getSupplyByID() {
         $data = $this->model->getDataSupplyByID();
         echo json_encode($data);
+    }
+    
+    function getSupplyByIDforPDF() {
+        return $this->model->getDataSupplyByID();
     }
 
     function getSupplyItemsByID() {
@@ -88,6 +97,12 @@ class Supply extends Controller {
         $enumList = explode(",", str_replace("'", "", substr($result, 5, (strlen($result) - 6))));
         //var_dump($enumList);
         return $enumList;
+    }
+    
+    function getOrderTypeJSon() {
+       $result = $this->model->getDataOrderType();
+        $enumList = explode(",", str_replace("'", "", substr($result, 5, (strlen($result) - 6))));
+        echo json_encode($enumList);
     }
     
 }

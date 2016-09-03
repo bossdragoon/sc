@@ -21,11 +21,14 @@ $(function () {
     var tmp_items_font_bold;
     var tmp_items_index;
     var tmp_items_status;
-    var arrItems = [];
+    var arrSupplyItems = [];
     var maxIndex = 0;
     var alertChk;
     var visiblePages_Items = 10;
     var perPage_Items = 10;
+
+
+    $('#new_supply_items_order_type').val('Normal Change');
 
     $('#group_select_dept').hide();
     $('#div_search').hide();
@@ -72,7 +75,6 @@ $(function () {
         showSeconds: false,
         showMeridian: false,
         defaultTime: false
-//        
     });
 
     highlightSelButton();
@@ -200,8 +202,9 @@ $(function () {
                         + '<td align="left" title="" id="' + i + '<label id="' + i + '" >' + o[i]['supply_consignor2_name'] + '</label></td>'
                         + '<td align="left" title="" id="' + i + '<label id="' + i + '" >' + supply_consignor2_time + '</label></td>'
                         + '<td>'
-                        + '<a class="edit btn btn-info" rel="' + o[i].items_id + '" href="#" ><span class="glyphicon glyphicon-pencil" aria-hidden="true" title="แก้ไขรายการ"></span></a>'
-                        + '<a class="del btn btn-danger" rel="' + o[i].items_id + '" data-items-name="' + o[i].items_name + '" href="#" ><span class="glyphicon glyphicon-trash" aria-hidden="true" title="ลบรายการ"></span></a>'
+                        + '<a class="edit btn btn-info" supply_id="' + o[i].supply_id + '" supply_date="' + o[i].supply_date + '" supply_shift="' + o[i].supply_shift + '" href="#" ><span class="glyphicon glyphicon-pencil" aria-hidden="true" title="แก้ไขรายการ"></span></a>'
+                        + '<a class="del btn btn-danger" rel="' + o[i].supply_id + '" data-items-name="' + o[i].items_name + '" href="#" ><span class="glyphicon glyphicon-trash" aria-hidden="true" title="ลบรายการ"></span></a>'
+                        + '<a class="print_preview btn btn-success rel="' + o[i].supply_id + '" href="supply/print_preview/' + o[i].supply_id + '" target="_blank" title="พิมพ์"><span class="glyphicon glyphicon-print" aria-hidden="true"></span></a>'
                         + '</td>'
                         + ' ';
 
@@ -214,8 +217,129 @@ $(function () {
 
     }
 
+    //delete supply_items
+    $('#tables_data_supply_items').on('click', '.del', function () {
+        if (confirm("ต้องการลบรายการรายการอุปกรณ์!\n กดปุ่ม OK หรือ Cancel.")) {
+            var curIndex = $(this).attr('rel');
+            arrSupplyItems[curIndex].manage = 'delete';
+            showTableSupplyItemsData(arrSupplyItems);
+            return true;
+        } else {
+            return false;
+            exit();
+        }
+        return false;
+    });
+
     function alertHide() {
         $("#formAlert").hide();
+    }
+
+    function getOrderTypeJSon() {
+        $.get('supply/getOrderTypeJSon', {}, function (o) {
+            console.log(o);
+        }, 'json');
+        return false;
+    }
+
+    function duplicateCheckSupplyItemsInArray(arrSupplyItems, currCode, currType) {
+        console.log('currCode:=' + currCode);
+        for (var i = 0; i < arrSupplyItems.length; i++) {
+            if (arrSupplyItems[i].items_id === currCode && arrSupplyItems[i].supply_items_order_type === currType && arrSupplyItems[i].manage !== 'delete') {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /* when click button "ADD" */
+    $('#btn_add_new').on('click', function () {
+        console.log('new_items_id :='+ $('#new_items_id').val());
+        
+        if (duplicateCheckSupplyItemsInArray(arrSupplyItems, $('#new_items_id').val()) === true) {
+            alertInit('danger', 'ผิดพลาด! รายการอุปกรณ์ถูกเลือกไปแล้ว');
+            alertShow();
+            return false;
+            
+        } else if ($('#new_items_id').val() === null) {
+            alertInit('danger', 'ผิดพลาด! คุณต้องเลือกอุปกรณ์...ก่อน');
+            alertShow();
+            
+        } else {
+
+            var e = document.getElementById("new_items_id");
+            var new_items_name = e.options[e.selectedIndex].text;
+            var i = arrSupplyItems.length;
+
+            try {
+
+            } catch (err) {
+                //$('#new_items_id').focus();
+                //console.log(err.message);
+
+                // $("#formAlert").show();
+
+            }
+
+            arrSupplyItems[i] = {
+                "supply_items_id": $('#new_items_id').val(),
+                "supply_id": $('#supply_id').val(),
+                "items_id": $('#new_items_id').val(),
+                "items_name": new_items_name,
+                "supply_items_send": $('#new_supply_items_send').val(),
+                "supply_items_receive": $('#new_supply_items_receive').val(),
+                "supply_items_divide": $('#new_supply_items_divide').val(),
+                "supply_items_remain": $('#new_supply_items_remain').val(),
+                "supply_items_order_type": $('#new_supply_items_order_type').val(),
+                "hos_guid": '',
+                "manage": 'new'
+            };
+            clearPanelNewSupplyItems();
+        }
+
+        showTableSupplyItemsData(arrSupplyItems);
+        $('.frm-choose-parts').modal("toggle");
+
+    });
+
+    function showTableSupplyItemsData(arrSupplyItems) {
+        $('#tables_data_supply_items').empty();
+        var dropdownType = '';
+        var selectedNormalChange = '';
+        var selectedAddNewItems = '';
+        getOrderTypeJSon();
+        for (var i = 0; i < arrSupplyItems.length; i++) {
+            if (arrSupplyItems[i].supply_items_order_type === 'Normal Change') {
+                selectedNormalChange = 'selected';
+                selectedAddNewItems = '';
+            } else {
+                selectedNormalChange = '';
+                selectedAddNewItems = 'selected';
+            }
+
+
+            if (arrSupplyItems[i].manage !== 'delete') {
+                dropdownType = '<select class="form-control " id="supply_items_order_type-' + i + '" name="supply_items_order_type-' + i + '">'
+                        + ' <option value="Normal Change" ' + selectedNormalChange + '>Normal Change</option>'
+                        + ' <option value="Add New Items" ' + selectedAddNewItems + '>Add New Items</option>'
+                        + ' </select>';
+
+                $('#tables_data_supply_items').append('<tr class="cls-supplyItemsManage itemsRow-' + i + '" align="center"><td data-title="#">' + (i + 1) + '</td>'
+                        + '<td data-title="รายการ" align="left" ><input type="hidden" id="items_id-' + i + '"  value="' + arrSupplyItems[i].items_id + '">' + arrSupplyItems[i].items_name + '</td>'
+                        + '<td align="right" ><input type="number" maxlength="10" class="text-right" id="supply_items_send-' + i + '"  value="' + arrSupplyItems[i].supply_items_send + '"  required></input> </td>'
+                        + '<td align="right" ><input type="number" maxlength="4" class="text-right" id="supply_items_send-' + i + '" value="' + arrSupplyItems[i].supply_items_send + '"  required></input> </td>'
+                        + '<td align="right" ><input type="number" maxlength="4" class="text-right" id="supply_items_divide-' + i + '" value="' + arrSupplyItems[i].supply_items_divide + '"  required></input> </td>'
+                        + '<td align="right" ><input type="number" maxlength="4" class="text-right" id="supply_items_remain-' + i + '" value="' + arrSupplyItems[i].supply_items_remain + '"  required></input> </td>'
+                        + '<td >' + dropdownType + '</td>'
+                        + '<td data-title="ลบ"><a class="del btn btn-sm btn-danger" rel="' + i + '" href="#"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a> </td>'
+                        + '<td data-title="supply_items_id" style="display: none;">' + arrSupplyItems[i].supply_items_id + '</td>'
+                        + '<td data-title="hos_guid" style="display: none;">' + arrSupplyItems[i].hos_guid + '</td>'
+                        + '<td data-title="manage" style="display: none;">' + arrSupplyItems[i].manage + '</td>'
+                        //  + '<td ><input type="text" class="text-right" id="supply_items_order_type-' + i + '" value="' + arrSupplyItems[i].supply_items_order_type + '" disabled ></input> </td>'
+                        + '</tr>'
+                        );
+            }
+        }
     }
 
     /*** Edit and Delete Button ***/
@@ -230,38 +354,56 @@ $(function () {
                 $("#btn_clear").hide();
                 $("#btn_reset").show();
 
-                clearEditForm();
-                var id = $(this).attr('rel');
-                console.log("id:=" + id);
-                $.get('supply/getSupplyItemsByID', {'id': id}, function (o) {
+                clearPanelNewSupplyItems();
+                var supply_id = $(this).attr('supply_id');
+                var supply_date = $(this).attr('supply_date');
+                var supply_shift = $(this).attr('supply_shift');
+                //console.log("supply_id:=" + supply_id+" supply_date:=" + supply_date+" supply_shift:=" + supply_shift);
+                $.get('supply/getSupplyByID', {'supply_id': supply_id, 'supply_date': supply_date, 'supply_shift': supply_shift}, function (o) {
+                    //console.log(o);
+                    $('#label_supply_id').text(o[0].supply_id);
+                    $('#label_supply_depart').text(o[0].depart_name);
 
-                    $('#items_code').prop("readonly", true);
-                    $('#items_code').val(o[0].items_code);
-                    $('#items_name').val(o[0].items_name);
-                    $('#items_type').val(o[0].items_type);
-                    $('#items_formula').val(o[0].items_formula);
-                    $('#items_form').prop("disabled", true);
-                    $('#items_form').val(o[0].items_form);
-                    $('#items_form_input').val(o[0].items_form_input);
-                    $('#items_form_input_readonly').val(o[0].items_form_input_readonly);
-                    $('#items_font_bold').val(o[0].items_font_bold);
-                    $('#items_index').val(o[0].items_index);
-                    $('#items_status').val(o[0].items_status);
+                    $('#supply_id').val(supply_id);
 
-                    tmp_items_code = $('#items_code').val();
-                    tmp_items_name = $('#items_name').val();
-                    tmp_items_type = $('#items_type').val();
-                    tmp_items_formula = $('#items_formula').val();
-                    tmp_form_code = $('#form_code').val();
-                    tmp_items_form = $('#items_form').val();
-                    tmp_items_form_input = $('#items_form_input').val();
-                    tmp_items_form_input_readonly = $('#items_form_input_readonly ').val();
-                    tmp_items_font_bold = $('#items_font_bold').val();
-                    tmp_items_index = $('#items_index').val();
-                    tmp_items_status = $('#items_status').val();
+                    $('#supply_date').prop("readonly", true);
+                    $('#supply_date').val(o[0].supply_date);
+                    $('#supply_date').datepicker('update', o[0].supply_date);
 
-                    $('#form_name').focus();
-                    checkItemsType();
+                    $('#supply_shift').val(o[0].supply_shift);
+                    $('#supply_depart').val(o[0].supply_depart);
+
+                    $('#supply_consignee').val(o[0].supply_consignee);
+                    $('#supply_consignee_date').val(o[0].supply_consignee_date);
+                    $('#supply_consignee_date').datepicker('update', o[0].supply_consignee_date);
+                    $('#supply_consignee_time').val(o[0].supply_consignee_time);
+
+                    $('#supply_consignor').val(o[0].supply_consignor);
+                    $('#supply_consignor_date').val(o[0].supply_consignor_date);
+                    $('#supply_consignor_date').datepicker('update', o[0].supply_consignor_date);
+                    $('#supply_consignor_time').val(o[0].supply_consignor_time);
+
+                    $('#supply_divider').val(o[0].supply_divider);
+                    $('#supply_divider_date').val(o[0].supply_divider_date);
+                    $('#supply_divider_date').datepicker('update', o[0].supply_divider_date);
+                    $('#supply_divider_time').val(o[0].supply_divider_time);
+
+                    $('#supply_consignor2').val(o[0].supply_consignor2);
+                    $('#supply_consignor2_date').val(o[0].supply_consignor2_date);
+                    $('#supply_consignor2_date').datepicker('update', o[0].supply_consignor2_date);
+                    $('#supply_consignor2_time').val(o[0].supply_consignor2_time);
+
+                    $('.selectpicker').selectpicker('render');
+                    //$('.selectpicker').selectpicker('refresh');
+                    //$('#supply_shift').focus();
+
+                }, 'json');
+
+                $.get('supply/getSupplyItemsByID', {'supply_id': supply_id}, function (m) {
+
+                    arrCpy(m, arrSupplyItems);
+                    console.log(arrSupplyItems);
+                    showTableSupplyItemsData(arrSupplyItems);
 
                 }, 'json');
 
@@ -304,54 +446,7 @@ $(function () {
                 delConfirmDialog.open();
                 return false;
 
-            })
-            .on('click', ".up", function () {
-                var id = $(this).attr('rel');
-                var index = $(this).attr('index');
-
-                console.log('click up...');
-                if ((index * 1) > 1) {
-
-                    $.get('productItems/getItemsIndex', {
-                        'index': index, 'items_form': $('#select_form').val(), 'event': 'up'
-                    }, function (o) {
-                        arrCpy(o, arrItems);
-                        //console.log(arrItems);
-                    }, 'json');
-
-                    upItemsIndex(id, 'up');
-
-                } else {
-                    alert('เลื่อน index ไม่ได้อยู่บนสุดแล้ว');
-                }
-
-                return false;
-            })
-            .on('click', ".down", function () {
-                console.log('click down...');
-                var id = $(this).attr('rel');
-                var index = $(this).attr('index');
-
-                console.log('click down...index:=' + index + ' maxIndex:=' + maxIndex);
-                if ((index * 1) < (maxIndex * 1)) {
-
-                    $.get('productItems/getItemsIndex', {
-                        'index': index, 'items_form': $('#select_form').val(), 'event': 'down'
-                    }, function (o) {
-                        arrCpy(o, arrItems);
-                        //console.log(arrItems);
-                    }, 'json');
-
-                    upItemsIndex(id, 'down');
-
-                } else {
-                    alert('เลื่อน index ไม่ได้อยู่ล่างสุดแล้ว');
-                }
-
-                return false;
-
-            })
-            ;
+            });
 
 
     $('#search').on('keyup', function () {
@@ -456,59 +551,33 @@ $(function () {
 
 
 
-    function clearEditForm() {
+    function clearPanelNewSupplyItems() {
         alertHide();
-        //$('#items_code').prop("readonly", false);
-        $('#items_code').val("");
-        $('#items_name').val("");
-        $('#items_type').val("");
-        $('#items_formula').val("");
-        $('#items_form').val("");
-        $('#items_form_input').val("");
-        $('#items_form_input_readonly').val("");
-        $('#items_font_bold').val("");
-        $('#items_index').val("");
-        $('#items_status').val("");
-        newData = false;
-
+        $('#new_items_id').val('0');
+        $('#new_supply_items_send').val("0");
+        $('#new_supply_items_receive').val("0");
+        $('#new_supply_items_divide').val("0");
+        $('#new_supply_items_remain').val("0");
+        $('#new_supply_items_order_type').val("Normal Change");
+        $('.selectpicker').selectpicker('render');
     }
 
 
-    $('#btn_reset').on('click', function () {
+//    $('#btn_reset').on('click', function () {
+//
+//        $('#items_code').val(tmp_items_code);
+//        $('#items_name').val(tmp_items_name);
+//        $('#items_type').val(tmp_items_type);
+//        $('#items_formula').val(tmp_items_formula);
+//        $('#items_form').val(tmp_items_form);
+//        $('#items_form_input').val(tmp_items_form_input);
+//        $('#items_form_input_readonly').val(tmp_items_form_input_readonly);
+//        $('#items_font_bold').val(tmp_items_font_bold);
+//        $('#items_index').val(tmp_items_index);
+//        $('#items_status').val(tmp_items_status);
+//
+//    });
 
-        $('#items_code').val(tmp_items_code);
-        $('#items_name').val(tmp_items_name);
-        $('#items_type').val(tmp_items_type);
-        $('#items_formula').val(tmp_items_formula);
-        $('#items_form').val(tmp_items_form);
-        $('#items_form_input').val(tmp_items_form_input);
-        $('#items_form_input_readonly').val(tmp_items_form_input_readonly);
-        $('#items_font_bold').val(tmp_items_font_bold);
-        $('#items_index').val(tmp_items_index);
-        $('#items_status').val(tmp_items_status);
-
-    });
-
-
-    $('#btn_add_new').on('click', function () {
-        clearEditForm();
-        newData = true;
-        $("#btn_clear").show();
-        $("#btn_reset").hide();
-        $('#items_code').val("NewCode!");
-        $('#items_code').prop("readonly", true);
-        $('#items_form').val($('#select_form').val());
-        $('#items_form').prop("disabled", true);
-        checkItemsType();
-        callItemsStatusY();
-
-    });
-
-
-    $('#btn_clear').on('click', function () {
-        clearEditForm();
-
-    });
 
     $('#choose-items').on('click', function () {
         callDataItems();

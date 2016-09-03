@@ -127,8 +127,9 @@ $active = ' class="active"';
                 <form id="partManagement" name="partManagement" class="form-horizontal" role="form" action="<?= URL; ?>parts_items/xhrInsertPart" method="post">
                     <div class="modal-header">
                         <button id="model-close" type="button" class="close" data-dismiss="modal" aria-label="Close"><span readonly>&times;</span></button>
-                        <h4 class="modal-title" id="gridSystemModalLabel" >บันทึกข้อมูลเบิก-จ่ายอุปกรณ์ :: เลขที่ <label id="supply_id">1234</label> หน่วยงาน/Ward <label id="supply_depart">ICU 1</label></h4>
+                        <h4 class="modal-title" id="gridSystemModalLabel" >บันทึกข้อมูลเบิก-จ่ายอุปกรณ์   [ เลขที่ :: <label id="label_supply_id"></label>   หน่วยงาน/Ward :: <label id="label_supply_depart"></label> ] </h4>
                         <input type="hidden" id="userPerson_id" name="userPerson_id" value="<?= $logged['person_id']; ?>" />
+                        <input type="hidden" id="supply_id" name="supply_id" />
                     </div>
                     <div class="modal-body">
                         <div class='panel-group' id='supplyHeadDate-panel'>
@@ -148,7 +149,7 @@ $active = ' class="active"';
                                             </div>
                                             <div class='col-xs-6 col-lg-2 text-left'><strong>เวร :</strong></div>
                                             <div class='col-xs-6 col-lg-4 text-left'> 
-                                                <select class="form-control" id="select_shift" name="select_shift">
+                                                <select class="form-control" id="supply_shift" name="supply_shift">
                                                     <?php
                                                     foreach ($this->getShift as $value) {
                                                         echo "<option value='{$value}' >{$value}</option>";
@@ -268,14 +269,15 @@ $active = ' class="active"';
                                 </div>
                             </div>
                             <div class="panel panel-default">
-                                <div class="panel-body">
+                                <div id="formAlert"></div>
+                                <div class="panel-body"  id="panel_new_supply_items" name="panel_new_supply_items">
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="form-horizontal">  
                                                 <div class='row'>
                                                     <div class='col-xs-4 col-lg-4 text-left'>
-                                                        เลือกอุปกรณ์ :<select class="form-control  selectpicker" id="choose_items" name="choose_items" data-live-search="true">
-                                                            <option value="">- - เลือก - -</option>
+                                                        เลือกอุปกรณ์ :<select class="form-control  selectpicker" id="new_items_id" name="new_items_id" data-live-search="true">
+<!--                                                          <option value="">- - ไม่เลือก - -</option>-->
                                                             <?php
                                                             foreach ($this->getItemsStatusY as $value) {
                                                                 echo "<option value='{$value[items_id]}' >{$value[items_name]}</option>";
@@ -284,19 +286,19 @@ $active = ' class="active"';
                                                         </select>
                                                     </div>
                                                     <div class='col-xs-1 col-lg-1 text-left'>
-                                                        ส่ง : <input class="form-control" type="number" id="IP01C001" name="IP01C001" max="999999" min="0" value="0" >
+                                                        ส่ง : <input class="form-control" type="number" id="new_supply_items_send" name="new_supply_items_send" max="999999" min="0" value="0" >
                                                     </div>
                                                     <div class='col-xs-1 col-lg-1 text-left'>
-                                                        รับ : <input class="form-control" type="number" id="IP01C001" name="IP01C001" max="999999" min="0" value="0" >
+                                                        รับ : <input class="form-control" type="number" id="new_supply_items_receive" name="new_supply_items_receive" max="999999" min="0" value="0" >
                                                     </div>
                                                     <div class='col-xs-1 col-lg-1 text-left'>
-                                                        จ่าย : <input class="form-control" type="number" id="IP01C001" name="IP01C001" max="999999" min="0" value="0" >
+                                                        จ่าย : <input class="form-control" type="number" id="new_supply_items_divide" name="new_supply_items_divide" max="999999" min="0" value="0" >
                                                     </div>
                                                     <div class='col-xs-1 col-lg-1 text-left'>
-                                                        ค้าง : <input class="form-control" type="number" id="IP01C001" name="IP01C001" max="999999" min="0" value="0" >
+                                                        ค้าง : <input class="form-control" type="number" id="new_supply_items_remain" name="new_supply_items_remain" max="999999" min="0" value="0" >
                                                     </div>
                                                     <div class='col-xs-2 col-lg-2 text-left'>
-                                                        ประเภทเบิก :<select class="form-control  selectpicker" id="choose_order_type" name="choose_order_type" data-live-search="true">
+                                                        ประเภทเบิก :<select class="form-control  selectpicker" id="new_supply_items_order_type" name="new_supply_items_order_type" data-live-search="true">
                                                             <option value="">- - เลือก - -</option>
                                                             <?php
                                                             foreach ($this->getOrderType as $value) {
@@ -306,7 +308,7 @@ $active = ' class="active"';
                                                         </select>
                                                     </div>
                                                     <div class='col-xs-2 col-lg-2 text-left'>
-                                                        <button id="choose_add" class="btn btn-lg btn-primary" type="button">  ADD  </button>
+                                                        <button id="btn_add_new" class="btn btn-lg btn-primary" type="button">  ADD  </button>
                                                     </div>
                                                 </div>
                                                 <br>
@@ -321,13 +323,12 @@ $active = ' class="active"';
 
                         <!--tabs-->
                         <ul class="nav nav-tabs">
-                            <li id="li-tab-parts" class="active"><a data-toggle="tab" href="#tab-jobs"><b>รายการเบิก-จ่าย</b></a></li>
-                            <li id="li-tab-parts"><a data-toggle="tab" href="#tab-parts">อะไหล่</a></li>
+                            <li id="li-tab-supplyItems" class="active"><a data-toggle="tab" href="#tab-supplyItems"><b>รายการเบิก-จ่าย</b></a></li>
                         </ul>
                         <!------>
                         <div class="tab-content">
                             <!--tab content for "#home"-->
-                            <div id="tab-items" class="tab-pane fade in active">
+                            <div id="tab-supplyItems" class="tab-pane fade in active">
                                 <div class="col-md-12" id="no-more-tables" >
                                     <br>
                                     <table class="col-md-12 table-striped table-bordered table-condensed cf">
@@ -356,27 +357,29 @@ $active = ' class="active"';
                                         </tfoot>  -->
                                     </table>
                                 </div>
-                                <div class="col-md-12 text-success">&nbsp;&nbsp;&nbsp;&nbsp;--&nbsp;ทั้งหมด--&nbsp;&nbsp;&nbsp;&nbsp;
-                                    <input type="text" class="text-right" id="sum_price_all_jobs" name="sum_price_all_jobs" size="8" value="SUM&nbsp;ALL" disabled />
-                                    <input type="hidden" id="arrJobs" name="arrJobs" value="">
-                                </div>
+                                <!--                                <div class="col-md-12 text-success">&nbsp;&nbsp;&nbsp;&nbsp;--&nbsp;ทั้งหมด--&nbsp;&nbsp;&nbsp;&nbsp;
+                                                                    <input type="text" class="text-right" id="sum_price_all_jobs" name="sum_price_all_jobs" size="8" value="SUM&nbsp;ALL" disabled />
+                                                                    <input type="hidden" id="arrJobs" name="arrJobs" value="">
+                                                                </div>-->
                             </div>
                         </div>
-
-                        <table class="table table-striped">
-                            <tr>
-                                <td class="col-xs-3 col-md-2 col-lg-2 text-center">ราคารวม <label id="sumAllService" name="sumAllService">1.00</label> บาท</td>
-                                <td class="col-xs-4 col-md-3 col-lg-2 text-center"> [<label id="sumAllServiceThaiBaht" name="sumAllServiceThaiBaht">หนึ่งบาทถ้วน</label>] </td>
-                                <td class="col-xs-5 col-md-7 col-lg-8 text-right"><button type="submit" id="btn_submit_jobpart" class="btn btn-primary">Save
-                                        <span class="glyphicon glyphicon-off"></span>
-                                    </button>
-                                    <button type="button" id="btn_reset_jobpart" class="btn btn-danger">Reset
-                                        <span class="glyphicon glyphicon-repeat"></span>
-                                    </button>
-                                </td>
-                            </tr>
-                        </table>
-
+                        
+                        <div class='panel panel-default'>
+                            <br>
+                            <table class="table table-striped">
+                                <tr>
+    <!--                                <td class="col-xs-3 col-md-2 col-lg-2 text-center">ราคารวม <label id="sumAllService" name="sumAllService">1.00</label> บาท</td>
+                                    <td class="col-xs-4 col-md-3 col-lg-2 text-center"> [<label id="sumAllServiceThaiBaht" name="sumAllServiceThaiBaht">หนึ่งบาทถ้วน</label>] </td>-->
+                                    <td class="col-xs-5 col-md-7 col-lg-8 text-right"><button type="submit" id="btn_submit_jobpart" class="btn btn-primary">Save
+                                            <span class="glyphicon glyphicon-off"></span>
+                                        </button>
+                                        <button type="button" id="btn_reset_jobpart" class="btn btn-danger">Reset
+                                            <span class="glyphicon glyphicon-repeat"></span>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -402,7 +405,7 @@ $active = ' class="active"';
                     <th style="text-align: center;" width="150px"> เวลา<br>จ่ายอุปกรณ์ </th>
                     <th style="text-align: center;" width="150px"> รับอุปกรณ์<br>ปราศจากเชื้อ </th>
                     <th style="text-align: center;" width="150px"> เวลา<br>รับอุปกรณ์.. </th>
-                    <th style="text-align: center;" width="100pxpx"> จัดการ </th>
+                    <th style="text-align: center;" width="150pxpx"> จัดการ </th>
                 </tr>
             </thead>
             <tbody id="listingsDataSupply">            

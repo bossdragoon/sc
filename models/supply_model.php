@@ -157,24 +157,43 @@ class Supply_Model extends Model {
     }
 
     function getDataSupplyByID() {
-        $sql = "SELECT si.*, i.items_name , it.items_type_name
-                FROM supply_items si
-                LEFT OUTER JOIN items i on i.items_id = si.items_id
-                LEFT OUTER JOIN items_type it on it.items_type_id = i.items_type
-                where 1=1
-                and si.supply_id = '{$_GET['id']}' ";
+        $sql = "SELECT
+                    s.supply_id, s.supply_date, s.supply_shift, s.supply_depart, d.depart_name, s.supply_consignee,
+                    CONCAT( p1.person_firstname,' ', p1.person_lastname) AS supply_consignee_name,
+                    date(s.supply_consignee_time) as supply_consignee_date, time(s.supply_consignee_time) as supply_consignee_time, s.supply_consignor,
+                    CONCAT(p2.person_firstname,' ',p2.person_lastname) AS supply_consignor_name,
+                    date(s.supply_consignor_time) as supply_consignor_date, time(s.supply_consignor_time) as supply_consignor_time, s.supply_divider,
+                    CONCAT(p3.person_firstname,' ',p3.person_lastname) AS supply_divider_name,
+                    date(s.supply_divider_time) as supply_divider_date,  time(s.supply_divider_time) as supply_divider_time, s.supply_consignor2,
+                    CONCAT(p4.person_firstname,' ',p4.person_lastname) AS supply_consignor2_name,
+                    date(s.supply_consignor2_time) as supply_consignor2_date,
+                    time(s.supply_consignor2_time) as supply_consignor2_time,
+                    count(si.items_id) AS cnt_items
+                FROM supply_items AS si
+                LEFT OUTER JOIN supply AS s ON s.supply_id = si.supply_id
+                LEFT OUTER JOIN supply_depart AS d ON d.depart_id = s.supply_depart
+                LEFT OUTER JOIN personal AS p1 ON p1.person_id = s.supply_consignee
+                LEFT OUTER JOIN personal AS p2 ON p2.person_id = s.supply_consignor
+                LEFT OUTER JOIN personal AS p3 ON p3.person_id = s.supply_divider
+                LEFT OUTER JOIN personal AS p4 ON p4.person_id = s.supply_consignor2
+                WHERE 1 = 1
+                AND s.supply_id = '{$_GET['supply_id']}'
+                AND s.supply_date = '{$_GET['supply_date']}'
+                AND s.supply_shift = '{$_GET['supply_shift']}'
+                GROUP BY
+                s.supply_id ";
 
         $data = $this->db->select($sql);
         return $data;
     }
 
     function getDataSupplyItemsByID() {
-        $sql = "SELECT si.*, i.items_name , it.items_type_name
+        $sql = "SELECT si.*, i.items_name , it.items_type_name, '' as manage
                 FROM supply_items si
                 LEFT OUTER JOIN items i on i.items_id = si.items_id
                 LEFT OUTER JOIN items_type it on it.items_type_id = i.items_type
                 where 1=1
-                and si.supply_id = '{$_GET['id']}' ";
+                and si.supply_id = '{$_GET['supply_id']}' ";
 
         $data = $this->db->select($sql);
         return $data;
