@@ -1,4 +1,7 @@
 <?php
+
+$array = $this->print_preview[0];
+$array1 = $this->print_table[0];
 //require ('connect.php');
 require_once('./public/mpdf/mpdf.php'); //ที่อยู่ของไฟล์ mpdf.php ในเครื่องเรานะครับ
 ini_set('memory_limit', '1024M');
@@ -38,29 +41,63 @@ ob_start();
                 <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
             </head>
             <body>
-                <div class=Section2>
+                <div class=Section2 >
                     <table width="704" border="0" align="center" cellpadding="0" cellspacing="0">
                         <tr>
-                            <td width="291" align="center"><span class="style2">ใบเบิก-จ่ายอุปกรณ์ ของหน่วยงานจ่ายกลาง</span></td>
+                            <td width="291" align="center"><span class="style1"><b>ใบเบิก-จ่ายอุปกรณ์ ของหน่วยงานจ่ายกลาง</span></td>
                         </tr>
                         <tr>
-                            <td height="27" align="center"><span class="style2">วันที่ <?php echo $_POST['supply_date']; ?> เวลา <?php echo $_POST['this_terms']; ?></span></td>
+                            <td height="27" align="center"><span class="style1"><b>วันที่ <?php echo $array["supply_date"]; ?> เวร <?php echo ($array['supply_shift'] == "morning") ? "เช้า" : "บ่าย"; ?></span></td>
                         </tr>
                     </table>
+                    <hr>
+                    <table width="704" border="0" align="center" cellpadding="0" cellspacing="0">
+                        <tr>
+                            <td width="291" align="left"><span class="style2">ส่งอุปกรณ์ <?php echo $array["supply_consignee_date"].' '.$array["supply_consignee_time"]; ?> วัน/เวลา</span></td>
+                            <td width="291" align="right"><span class="style2">รับอุปกรณ์ <?php echo $array["supply_consignor_date"].' '.$array["supply_consignor_time"]; ?> วัน/เวลา</span></td>
+                        </tr>
+                        <tr>
+                            <td height="27" align="left"><span class="style2">จ่ายอุปกรณ์ <?php echo $array["supply_divider_date"].' '.$array["supply_divider_time"]; ?> วัน/เวลา</span></td>
+                            <td height="27" align="right"><span class="style2">รับอุปกรณ์ปราศจากเชื้อ <?php echo $array["supply_consignor2_date"].' '.$array["supply_consignor2_time"]; ?> วัน/เวลา</span></td>
+                        </tr>
+                    </table> 
+                    <hr>
                     <table width="800" border="1" align="center" cellpadding="0" cellspacing="0" class="style1">
-                        <tr bgcolor="#00CCFF">
-                            <td width="420" align="center" rowspan="2"><strong>มาตราฐาน</strong></td>
-                            <td height="24" align="center" colspan="5"><strong>คะแนนที่ประเมิณได้</strong></td>
-                            <td width="80" align="center" rowspan="2"><strong>หมายเหตุ</strong></td>
-                        </tr>
-                        <tr bgcolor="#00CCFF">
-                            <td width="60" align="center"><strong>ไม่ได้ทำ<br>(๐)</strong></td>
-                            <td width="60" align="center"><strong>ปรับปรุง<br>(๑)</strong></td>
-                            <td width="60" align="center"><strong>พอใช้<br>(๒)</strong></td>
-                            <td width="60" align="center"><strong>ดี<br>(๓)</strong></td>
-                            <td width="60" align="center"><strong>ดีมาก<br>(๔)</strong></td>
-                        </tr>
-
+                        <thead>
+                            <tr bgcolor="#66CCFF">
+                                <th align="center" ><strong>#</strong></td>
+                                <th align="center" ><strong>รายการอุปกรณ์</strong></td>
+                                <th align="center" ><strong>ส่ง</strong></td>
+                                <th align="center" ><strong>รับ</strong></td>
+                                <th align="center" ><strong>จ่าย</strong></td>
+                                <th align="center" ><strong>ค้าง</strong></td>
+                                <th align="center" ><strong>ประเภทเบิก</strong></td>
+                                <th align="center" ><strong>หมายเหตุ</strong></td>
+                            </tr>
+                        </thead>
+                        <?php  $num=1;  
+                               foreach ($array1 as $row) 
+                                    { ?>
+                        <tbody>
+                            <tr>
+                                <td align="center"><?php echo $num; ?></td>
+                                <td align="left" class="style3"><?php echo $row['items_name']; ?></td>
+                                <td align="center" class="style3"><?php echo $row['supply_items_send']; ?></td>
+                                <td align="center" class="style3"><?php echo $row['supply_items_receive']; ?></td>
+                                <td align="center" class="style3"><?php echo $row['supply_items_divide']; ?></td>
+                                <td align="center" class="style3"><?php echo $row['supply_items_remain']; ?></td>
+                                <td align="center" class="style3"><?php echo ($row['supply_items_order_type'] == "Add New Items") ? "Add New Items" : ''; ?></td>
+                                <td align="center" class="style3"><?php #echo $array['supply_consignor2_name']; ?></td>
+                            </tr>
+                        </tbody> <?php $num++; }?> 
+<!--                            <tr> 
+                                <td></td>
+                                <td align="right" rowspan="2">รวม</td>
+                                <td align="center" class="style3"><?php echo ($row['supply_items_send']); ?></td>
+                                <td align="center" class="style3"><?php echo ($row['supply_items_receive']); ?></td>
+                                <td align="center" class="style3"><?php echo ($row['supply_items_divide']); ?></td>
+                                <td align="center" class="style3"><?php echo ($row['supply_items_remain']); ?></td>
+                            </tr>-->
                     </table>
                 </div>
             </body>

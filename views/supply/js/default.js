@@ -10,20 +10,10 @@ $(function () {
     var newData = false;
     var arrItemsStatusY = [];
     var editItem;
-    var tmp_items_code;
-    var tmp_items_name;
-    var tmp_items_type;
-    var tmp_items_formula;
-    var tmp_form_code;
-    var tmp_items_form;
-    var tmp_items_form_input;
-    var tmp_items_form_input_readonly;
-    var tmp_items_font_bold;
-    var tmp_items_index;
-    var tmp_items_status;
-    var arrSupplyItems = [];
+    var arrSupplyHead = new Array(2);
+    var arrSupplyItems = new Array(2);
     var maxIndex = 0;
-    var alertChk;
+    var user_type;
     var visiblePages_Items = 10;
     var perPage_Items = 10;
 
@@ -49,7 +39,7 @@ $(function () {
         $('#mainForm').addClass('form-horizontal');
     });
 
-    $('#date1').datepicker({
+    $('#select_date').datepicker({
         format: "yyyy-mm-dd",
         language: "th",
         autoclose: true,
@@ -68,7 +58,7 @@ $(function () {
         orientation: "top"
     });
 
-    $('#supply_consignee_time, #supply_consignor_tiem, #supply_divider_time, #supply_consignor2_time').timepicker({
+    $('#supply_consignee_time, #supply_consignor_time, #supply_divider_time, #supply_consignor2_time').timepicker({
         minuteStep: 1,
         template: 'modal',
         appendWidgetTo: 'body',
@@ -96,7 +86,29 @@ $(function () {
 
         callData();
     });
-
+    
+    $('#dgSend').on('click', function () {
+        $('#dgSend').addClass('btn btn-info');
+        $('#dgReceive').removeClass('btn btn-info');
+        $('#dgReceive').addClass('btn btn-default');
+        $('#dgDivide').removeClass('btn btn-info');
+        $('#dgDivide').addClass('btn btn-default');
+        $('#dgReceive2').removeClass('btn btn-info');
+        $('#dgReceive2').addClass('btn btn-default');
+        activeOneDay($('#date1').val());
+    });
+    
+    $('#dgReceive').on('click', function () {
+        // activeTabRec();
+    });
+    
+    $('#dgDivide').on('click', function () {
+        // activeTabDiv();
+    });
+    
+    $('#dgReceive2').on('click', function () {
+        // activeTabRec2();
+    });
 
     function highlightSelButton() {
 
@@ -121,49 +133,52 @@ $(function () {
                 //select_dept = $('#select_dept').val(),
                 select_shift = $('#select_shift').val();
 
-        var data = {
-            'perPage': perPage,
-            'keyword': keyword,
-            //'select_dept': select_dept,
-            'select_shift': select_shift,
-            'supply_mode': mode
-        };
+//        var data = {
+//            'perPage': perPage,
+//            'keyword': keyword,
+//            //'select_dept': select_dept,
+//            'select_shift': select_shift,
+//            'supply_mode': mode
+//        };
 
-        $.get('supply/pagination', data, function (o) {
-            $('.pagin').empty();
-            if (o.allPage > 1) {
-                $('.pagin').append('<ul id="pagination" class="pagination-sm"></ul>');
-                $('#pagination').twbsPagination({
-                    startPage: cPage,
-                    totalPages: o.allPage,
-                    visiblePages: visiblePages,
-                    onPageClick: function (event, page) {
-                        //$('.cls').empty();
-                        cPage = page;
-                        callGetData(page);
-                        return false;
-                    }
-                });
-            }
-            callDataItem(cPage, mode);
-            $('#pagination').hide();
-        }, 'json');
+        callDataItem(cPage, mode);
+
+//        $.get('supply/pagination', data, function (o) {
+//            $('.pagin').empty();
+//            if (o.allPage > 1) {
+//                $('.pagin').append('<ul id="pagination" class="pagination-sm"></ul>');
+//                $('#pagination').twbsPagination({
+//                    startPage: cPage,
+//                    totalPages: o.allPage,
+//                    visiblePages: visiblePages,
+//                    onPageClick: function (event, page) {
+//                        //$('.cls').empty();
+//                        cPage = page;
+//                        callGetData(page);
+//                        return false;
+//                    }
+//                });
+//            }
+//            
+//            $('#pagination').hide();
+//        }, 'json');
 
     }
 
-    function callDataItem(page, mode) {
+    function callDataItem(page, mode, depart) {
 
         var mode = (mode !== "undefined" ? mode : "send");
 
-        var keyword = $('#search').val(),
-                //select_dept = $('#select_dept').val(),
-                select_shift = $('#select_shift').val();
-
+        var supply_date = $('#select_date').val();
+        var supply_shift = $('#select_shift').val();
+         depart = '55';
+         user_type = callUserType($('#user_type').val());
+         console.log('user_type:='+user_type);
         var data = {
-            'perPage': perPage,
-            'keyword': keyword,
-            //'select_dept': select_dept,
-            'select_shift': select_shift,
+            'supply_depart': depart,
+            'user_type': user_type, 
+            'supply_date': supply_date,
+            'supply_shift': supply_shift,
             'supply_mode': mode
         };
 
@@ -190,21 +205,22 @@ $(function () {
                 supply_divider_time = (o[i]['supply_divider_time'] !== '0000-00-00 00:00:00' ? o[i]['supply_divider_time'] : "");
                 supply_consignor2_time = (o[i]['supply_consignor2_time'] !== '0000-00-00 00:00:00' ? o[i]['supply_consignor2_time'] : "");
                 strTable += ''
-                        + '<td align="right"  title="" >' + '<label id="' + i + '" >' + j + '</label></td>'
-                        + '<td align="left" title="" id="' + i + '<label id="' + i + '" >' + o[i]['depart_name'] + '</label></td>'
-                        + '<td align="right" title="" id="' + i + '">' + '<label id="' + i + '" >' + cnt_items + '</label></td>'
-                        + '<td align="left" title="" id="' + i + '<label id="' + i + '" >' + o[i]['supply_consignee_name'] + '</label></td>'
-                        + '<td align="left" title="" id="' + i + '<label id="' + i + '" >' + supply_consignee_time + '</label></td>'
-                        + '<td align="left" title="" id="' + i + '<label id="' + i + '" >' + o[i]['supply_consignor_name'] + '</label></td>'
-                        + '<td align="left" title="" id="' + i + '<label id="' + i + '" >' + supply_consignor_time + '</label></td>'
-                        + '<td align="left" title="" id="' + i + '<label id="' + i + '" >' + o[i]['supply_divider_name'] + '</label></td>'
-                        + '<td align="left" title="" id="' + i + '<label id="' + i + '" >' + supply_divider_time + '</label></td>'
-                        + '<td align="left" title="" id="' + i + '<label id="' + i + '" >' + o[i]['supply_consignor2_name'] + '</label></td>'
-                        + '<td align="left" title="" id="' + i + '<label id="' + i + '" >' + supply_consignor2_time + '</label></td>'
+                        + '<td align="right"  title="" > ' + j + '</td>'
+                        + '<td align="left" title="" id="' + i + '" > ' + o[i]['depart_name'] + ' </td>'
+                        + '<td align="left" title="" style="display: none;" id="supply_shift-' + i + '" ><label id="' + i + '" >' + o[i]['supply_shift'] + '</label></td>'
+                        + '<td align="right" title="" id="' + i + '">' + cnt_items + '</td>'
+                        + '<td align="left" title="" id="' + i + '" >' + o[i]['supply_consignee_name'] + '</td>'
+                        + '<td align="left" title="" id="' + i + '" >' + supply_consignee_time + '</td>'
+                        + '<td align="left" title="" id="' + i + '" >' + o[i]['supply_consignor_name'] + '</td>'
+                        + '<td align="left" title="" id="' + i + '" >' + supply_consignor_time + '</td>'
+                        + '<td align="left" title="" id="' + i + '" >' + o[i]['supply_divider_name'] + '</td>'
+                        + '<td align="left" title="" id="' + i + '" >' + supply_divider_time + '</td>'
+                        + '<td align="left" title="" id="' + i + '" >' + o[i]['supply_consignor2_name'] + '</td>'
+                        + '<td align="left" title="" id="' + i + '" >' + supply_consignor2_time + '</td>'
                         + '<td>'
-                        + '<a class="edit btn btn-info" supply_id="' + o[i].supply_id + '" supply_date="' + o[i].supply_date + '" supply_shift="' + o[i].supply_shift + '" href="#" ><span class="glyphicon glyphicon-pencil" aria-hidden="true" title="แก้ไขรายการ"></span></a>'
+                        + '<a class="edit btn btn-info" supply_id="' + o[i].supply_id + '" supply_date="' + o[i].supply_date + '" supply_shift="' + o[i].supply_shift + '" supply_depart="' + o[i].supply_depart + '" depart_name="' + o[i].depart_name + '"href="#" ><span class="glyphicon glyphicon-pencil" aria-hidden="true" title="แก้ไขรายการ"></span></a>'
                         + '<a class="del btn btn-danger" rel="' + o[i].supply_id + '" data-items-name="' + o[i].items_name + '" href="#" ><span class="glyphicon glyphicon-trash" aria-hidden="true" title="ลบรายการ"></span></a>'
-                        + '<a class="print_preview btn btn-success rel="' + o[i].supply_id + '" href="supply/print_preview/' + o[i].supply_id + '" target="_blank" title="พิมพ์"><span class="glyphicon glyphicon-print" aria-hidden="true"></span></a>'
+                        + '<a class="print_preview btn btn-success" href="supply/print_preview/' + o[i].supply_id + '" target="_blank" title="พิมพ์"><span class="glyphicon glyphicon-print" aria-hidden="true"></span></a>'
                         + '</td>'
                         + ' ';
 
@@ -212,7 +228,7 @@ $(function () {
             }
 
             $('#listingsDataSupply').append(strTable);
-
+            //$("#th-tbSupply-supply_shift").css("display", "");   /****แสดงคอลัมน์*******/
         }, 'json');
 
     }
@@ -237,14 +253,15 @@ $(function () {
 
     function getOrderTypeJSon() {
         $.get('supply/getOrderTypeJSon', {}, function (o) {
-            console.log(o);
+            //console.log(o);
         }, 'json');
         return false;
     }
 
     function duplicateCheckSupplyItemsInArray(arrSupplyItems, currCode, currType) {
-        console.log('currCode:=' + currCode);
+        console.log('currType:=' + currType);
         for (var i = 0; i < arrSupplyItems.length; i++) {
+            console.log('arrSupplyItems[' + i + '].supply_items_order_type:=' + arrSupplyItems[i].supply_items_order_type);
             if (arrSupplyItems[i].items_id === currCode && arrSupplyItems[i].supply_items_order_type === currType && arrSupplyItems[i].manage !== 'delete') {
                 return true;
             }
@@ -254,17 +271,17 @@ $(function () {
 
     /* when click button "ADD" */
     $('#btn_add_new').on('click', function () {
-        console.log('new_items_id :='+ $('#new_items_id').val());
-        
-        if (duplicateCheckSupplyItemsInArray(arrSupplyItems, $('#new_items_id').val()) === true) {
+        console.log('new_items_id :=' + $('#new_items_id').val());
+
+        if (duplicateCheckSupplyItemsInArray(arrSupplyItems, $('#new_items_id').val(), $('#new_supply_items_order_type').val()) === true) {
             alertInit('danger', 'ผิดพลาด! รายการอุปกรณ์ถูกเลือกไปแล้ว');
             alertShow();
             return false;
-            
+
         } else if ($('#new_items_id').val() === null) {
             alertInit('danger', 'ผิดพลาด! คุณต้องเลือกอุปกรณ์...ก่อน');
             alertShow();
-            
+
         } else {
 
             var e = document.getElementById("new_items_id");
@@ -272,13 +289,7 @@ $(function () {
             var i = arrSupplyItems.length;
 
             try {
-
             } catch (err) {
-                //$('#new_items_id').focus();
-                //console.log(err.message);
-
-                // $("#formAlert").show();
-
             }
 
             arrSupplyItems[i] = {
@@ -327,7 +338,7 @@ $(function () {
                 $('#tables_data_supply_items').append('<tr class="cls-supplyItemsManage itemsRow-' + i + '" align="center"><td data-title="#">' + (i + 1) + '</td>'
                         + '<td data-title="รายการ" align="left" ><input type="hidden" id="items_id-' + i + '"  value="' + arrSupplyItems[i].items_id + '">' + arrSupplyItems[i].items_name + '</td>'
                         + '<td align="right" ><input type="number" maxlength="10" class="text-right" id="supply_items_send-' + i + '"  value="' + arrSupplyItems[i].supply_items_send + '"  required></input> </td>'
-                        + '<td align="right" ><input type="number" maxlength="4" class="text-right" id="supply_items_send-' + i + '" value="' + arrSupplyItems[i].supply_items_send + '"  required></input> </td>'
+                        + '<td align="right" ><input type="number" maxlength="4" class="text-right" id="supply_items_receive-' + i + '" value="' + arrSupplyItems[i].supply_items_receive + '"  required></input> </td>'
                         + '<td align="right" ><input type="number" maxlength="4" class="text-right" id="supply_items_divide-' + i + '" value="' + arrSupplyItems[i].supply_items_divide + '"  required></input> </td>'
                         + '<td align="right" ><input type="number" maxlength="4" class="text-right" id="supply_items_remain-' + i + '" value="' + arrSupplyItems[i].supply_items_remain + '"  required></input> </td>'
                         + '<td >' + dropdownType + '</td>'
@@ -341,6 +352,120 @@ $(function () {
             }
         }
     }
+
+    /*** update array supply_items_send ***/
+    $('#tables_data_supply_items').on('change', 'input[id^="supply_items_send-"]', function () {
+        var nId = $(this).attr('id').substring(18);
+        //console.log('nId:=' + nId);
+        arrSupplyItems[nId].supply_items_send = $(this).val();
+        if (arrSupplyItems[nId].manage !== 'new') {
+            arrSupplyItems[nId].manage = 'edit';
+        }
+        $("#arrSupplyItems").val(JSON.stringify(arrSupplyItems));
+        //console.log(arrSupplyItems);
+        return false;
+    });
+
+
+    /*** update array supply_items_receive ***/
+    $('#tables_data_supply_items').on('change', 'input[id^="supply_items_receive-"]', function () {
+        var nId = $(this).attr('id').substring(21);
+        //console.log('nId:=' + nId);
+        arrSupplyItems[nId].supply_items_receive = $(this).val();
+        if (arrSupplyItems[nId].manage !== 'new') {
+            arrSupplyItems[nId].manage = 'edit';
+        }
+        $("#arrSupplyItems").val(JSON.stringify(arrSupplyItems));
+        //console.log(arrSupplyItems);
+        return false;
+    });
+
+
+    /*** update array supply_items_divide ***/
+    $('#tables_data_supply_items').on('change', 'input[id^="supply_items_divide-"]', function () {
+        var nId = $(this).attr('id').substring(20);
+        //console.log('nId:=' + nId);
+        arrSupplyItems[nId].supply_items_divide = $(this).val();
+        if (arrSupplyItems[nId].manage !== 'new') {
+            arrSupplyItems[nId].manage = 'edit';
+        }
+        $("#arrSupplyItems").val(JSON.stringify(arrSupplyItems));
+        //console.log(arrSupplyItems);
+        return false;
+    });
+
+    /*** update array supply_items_divide ***/
+    $('#tables_data_supply_items').on('change', 'input[id^="supply_items_remain-"]', function () {
+        var nId = $(this).attr('id').substring(20);
+        //console.log('nId:=' + nId);
+        arrSupplyItems[nId].supply_items_remain = $(this).val();
+        if (arrSupplyItems[nId].manage !== 'new') {
+            arrSupplyItems[nId].manage = 'edit';
+        }
+        $("#arrSupplyItems").val(JSON.stringify(arrSupplyItems));
+        //console.log(arrSupplyItems);
+        return false;
+    });
+
+    /*** update array supply_items_order_type ***/
+    $('#tables_data_supply_items').on('change', 'select[id^="supply_items_order_type-"]', function () {
+        var nId = $(this).attr('id').substring(24);
+        //console.log('nId:=' + nId);
+        arrSupplyItems[nId].supply_items_order_type = $(this).val();
+        if (arrSupplyItems[nId].manage !== 'new') {
+            arrSupplyItems[nId].manage = 'edit';
+        }
+        $("#arrSupplyItems").val(JSON.stringify(arrSupplyItems));
+        //console.log(arrSupplyItems);
+        return false;
+    });
+
+    $('#btn_submit_supply').on('click', function () {
+        if (confirm("คุณต้องการบันทึกข้อมูล!\n กดปุ่ม OK หรือ Cancel.")) {
+
+            var data = [];
+            data[0] = {
+                "supply_id": $("#supply_id").val(),
+                "supply_date": $("#supply_date").val(),
+                "supply_shift": $("#supply_shift").val(),
+                "supply_depart": $("#supply_depart").val(),
+                "supply_consignee": $("#supply_consignee").val(),
+                "supply_consignee_time": $("#supply_consignee_date").val() + " " + $("#supply_consignee_time").val(),
+                "supply_consignor": $("#supply_consignor").val(),
+                "supply_consignor_time": $("#supply_consignor_date").val() + " " + $("#supply_consignor_time").val(),
+                "supply_divider": $("#supply_divider").val(),
+                "supply_divider_time": $("#supply_divider_date").val() + " " + $("#supply_divider_time").val(),
+                "supply_consignor2": $("#supply_consignor2").val(),
+                "supply_consignor2_time": $("#supply_consignor2_date").val() + " " + $("#supply_consignor2_time").val(),
+                "bank": "bank"
+            };
+
+            arrSupplyHead = data;
+
+            console.log(arrSupplyHead);
+            //console.log(arrSupplyItems);
+
+            $.post('supply/insertSupply', {'arrSupplyHead': arrSupplyHead, 'arrSupplyItems': arrSupplyItems}, function (o) {
+                if (o.resultUpdateSupply === true) {
+                    //alert('บันทึกข้อมูลเรียบร้อย');
+//                    $('.cls-partsManage').empty();
+//                    $('.cls-jobsManage').empty();
+//                    callDataJobsItems(service_id, perPage_Jobs);
+//                    callDataPartsItems(service_id, perPage_Parts);
+
+                    $('.close').click();
+                } else {
+                    alert("บันทึกข้อมูลไม่สำเร็จ");
+                }
+
+            }, 'json');
+        } else {
+            return false;
+            exit();
+        }
+        return false;
+    });
+
 
     /*** Edit and Delete Button ***/
     $('#listingsDataSupply')
@@ -358,51 +483,73 @@ $(function () {
                 var supply_id = $(this).attr('supply_id');
                 var supply_date = $(this).attr('supply_date');
                 var supply_shift = $(this).attr('supply_shift');
-                //console.log("supply_id:=" + supply_id+" supply_date:=" + supply_date+" supply_shift:=" + supply_shift);
-                $.get('supply/getSupplyByID', {'supply_id': supply_id, 'supply_date': supply_date, 'supply_shift': supply_shift}, function (o) {
-                    //console.log(o);
-                    $('#label_supply_id').text(o[0].supply_id);
-                    $('#label_supply_depart').text(o[0].depart_name);
+                var supply_depart = $(this).attr('supply_depart');
+                var depart_name = $(this).attr('depart_name');
 
-                    $('#supply_id').val(supply_id);
+                //console.log('1.supply_depart in edit items :=' + supply_depart);
+
+                if (supply_id !== "0") {
+
+                    $.get('supply/getSupplyByID', {'supply_id': supply_id, 'supply_date': supply_date, 'supply_shift': supply_shift}, function (o) {
+                        //console.log(o);
+                        if (o.length > 0) {
+
+                            $('#label_supply_id').text(o[0].supply_id);
+                            $('#label_supply_depart').text(o[0].depart_name);
+
+                            $('#supply_id').val(supply_id);
+                            $('#supply_date').val(o[0].supply_date);
+                            $('#supply_date').datepicker('update', o[0].supply_date);
+
+                            $('#supply_shift').val(o[0].supply_shift);
+                            $('#supply_depart').val(o[0].supply_depart);
+
+                            $('#supply_consignee').val(o[0].supply_consignee);
+                            $('#supply_consignee_date').val(o[0].supply_consignee_date);
+                            $('#supply_consignee_date').datepicker('update', o[0].supply_consignee_date);
+                            $('#supply_consignee_time').val(o[0].supply_consignee_time);
+
+                            $('#supply_consignor').val(o[0].supply_consignor);
+                            $('#supply_consignor_date').val(o[0].supply_consignor_date);
+                            $('#supply_consignor_date').datepicker('update', o[0].supply_consignor_date);
+                            $('#supply_consignor_time').val(o[0].supply_consignor_time);
+
+                            $('#supply_divider').val(o[0].supply_divider);
+                            $('#supply_divider_date').val(o[0].supply_divider_date);
+                            $('#supply_divider_date').datepicker('update', o[0].supply_divider_date);
+                            $('#supply_divider_time').val(o[0].supply_divider_time);
+
+                            $('#supply_consignor2').val(o[0].supply_consignor2);
+                            $('#supply_consignor2_date').val(o[0].supply_consignor2_date);
+                            $('#supply_consignor2_date').datepicker('update', o[0].supply_consignor2_date);
+                            $('#supply_consignor2_time').val(o[0].supply_consignor2_time);
+                            $('#supply_date').prop("readonly", true);
+                            $('#supply_shift').prop("disabled", true);
+                            $('#supply_depart').prop("disabled", true);
+                            $('.selectpicker').selectpicker('render');
+
+                        }
+
+                    }, 'json');
+                } else {
+                    //console.log('2.supply_depart in edit items :=' + supply_depart);
+                    $('#supply_date').val($('#select_date').val());
+                    $('#supply_shift').val($('#select_shift').val());
+                    $('#supply_depart').val(supply_depart);
+                    $('#label_supply_id').text('new ID');
+                    $('#label_supply_depart').text(depart_name);
 
                     $('#supply_date').prop("readonly", true);
-                    $('#supply_date').val(o[0].supply_date);
-                    $('#supply_date').datepicker('update', o[0].supply_date);
-
-                    $('#supply_shift').val(o[0].supply_shift);
-                    $('#supply_depart').val(o[0].supply_depart);
-
-                    $('#supply_consignee').val(o[0].supply_consignee);
-                    $('#supply_consignee_date').val(o[0].supply_consignee_date);
-                    $('#supply_consignee_date').datepicker('update', o[0].supply_consignee_date);
-                    $('#supply_consignee_time').val(o[0].supply_consignee_time);
-
-                    $('#supply_consignor').val(o[0].supply_consignor);
-                    $('#supply_consignor_date').val(o[0].supply_consignor_date);
-                    $('#supply_consignor_date').datepicker('update', o[0].supply_consignor_date);
-                    $('#supply_consignor_time').val(o[0].supply_consignor_time);
-
-                    $('#supply_divider').val(o[0].supply_divider);
-                    $('#supply_divider_date').val(o[0].supply_divider_date);
-                    $('#supply_divider_date').datepicker('update', o[0].supply_divider_date);
-                    $('#supply_divider_time').val(o[0].supply_divider_time);
-
-                    $('#supply_consignor2').val(o[0].supply_consignor2);
-                    $('#supply_consignor2_date').val(o[0].supply_consignor2_date);
-                    $('#supply_consignor2_date').datepicker('update', o[0].supply_consignor2_date);
-                    $('#supply_consignor2_time').val(o[0].supply_consignor2_time);
-
+                    $('#supply_shift').prop("disabled", true);
+                    $('#supply_depart').prop("disabled", true);
                     $('.selectpicker').selectpicker('render');
-                    //$('.selectpicker').selectpicker('refresh');
-                    //$('#supply_shift').focus();
 
-                }, 'json');
+                }
 
                 $.get('supply/getSupplyItemsByID', {'supply_id': supply_id}, function (m) {
 
                     arrCpy(m, arrSupplyItems);
-                    console.log(arrSupplyItems);
+                    // console.log(arrSupplyItems);
                     showTableSupplyItemsData(arrSupplyItems);
 
                 }, 'json');
@@ -448,111 +595,23 @@ $(function () {
 
             });
 
-
-    $('#search').on('keyup', function () {
-        clearTimeout(timer);
-        timer = setTimeout(function () {
-
-            $('.cls').empty();
-            $('#select_service_data').empty();
-            callData();
-//            if ($('#search').val() === '') {
-//                callData('%');
-//            } else {
-//                callData($('#search').val());
-//
-//                Session_searchText = $('#search').val();
-//                '<%Session["temp"] = "' + Session_searchText + '"; %>';
-//            }
-        }, delay);
-    });
-
-
-    $('#btn_submit').on('click', function () {
-        if (checkFormula($('#items_formula').val()) === true) {
-            var items_code = $("#items_code").val();
-            var items_name = $("#items_name").val();
-            var items_formula = '';
-
-            if (($('#items_type').val() === 'value') || ($('#items_type').val() === null)) {
-                items_formula = "";
-                console.log('in items_formula = ""');
-            } else {
-                items_formula = $('#items_formula').val();
-                items_formula.trim();
-            }
-
-            if (items_code !== "" && items_name !== "" && newData === false) {
-
-                $.post('productItems/updateByID', {
-                    'items_code': $('#items_code').val(),
-                    'items_name': $('#items_name').val(),
-                    'items_type': $('#items_type').val(),
-                    'items_formula': $('#items_formula').val(),
-                    'items_form': $('#items_form').val(),
-                    'items_form_input': $('#items_form_input').val(),
-                    'items_font_bold': $('#items_font_bold').val(),
-                    'items_form_input_readonly': $('#items_form_input_readonly').val(),
-                    'items_index': $('#items_index').val(),
-                    'items_status': $('#items_status').val()
-
-                }, function (o) {
-
-                    if (o.sta === 'update') {
-                        if (o.result === true) {
-                            alert('อัพเดรตข้อมูลสำเร็จ.');
-                        } else {
-                            alert('อัพเดรตข้อมูลไม่สำเร็จ.');
-                        }
-                        $(".close").click();
-                        callData($('#search').val(), cPage, $('#select_form').val());
-                    }
-
-                }, 'json');
-
-
-            } else if (items_code !== "" && items_name !== "" && newData === true) {
-
-                $.post('productItems/insertByID', {
-                    'items_code': $('#items_code').val(),
-                    'items_name': $('#items_name').val(),
-                    'items_type': $('#items_type').val(),
-                    'items_form': $('#items_form').val(),
-                    'items_formula': items_formula,
-                    'items_form_input_readonly': $('#items_form_input_readonly').val(),
-                    'items_form_input': $('#items_form_input').val(),
-                    'items_font_bold': $('#items_font_bold').val(),
-                    'items_index': $('#items_index').val(),
-                    'items_status': $('#items_status').val()
-                }, function (o) {
-
-                    if (o.sta === 'add') {
-                        if (o.result === true) {
-                            alert('เพิ่มข้อมูลสำเร็จ.');
-                        } else {
-                            alert('เพิ่มข้อมูลไม่สำเร็จ.');
-                        }
-                        $(".close").click();
-                        callData($('#search').val(), cPage, $('#select_form').val());
-                    }
-
-                }, 'json');
-
-            } else {
-                alertInit('danger', 'ผิดพลาด! ไม่สามารถเพิ่มหรือแก้ไขข้อมูลได้...');
-                alertShow();
-
-            }
-            return false;
-        }
-        return false;
-
-    });
-
-
-
     function clearPanelNewSupplyItems() {
+        //console.log('in function clearPanelNewSupplyItems');
         alertHide();
+
+        $('#supply_consignee').val('0');
+        $('#supply_consignee_date').val('');
+        $('#supply_consignee_time').val('0:00');
+        $('#supply_consignor').val('0');
+        $('#supply_consignor_date').val('');
+        $('#supply_consignor_time').val('0:00');
+        $('#supply_divider').val('0');
+        $('#supply_divider_date').val('');
+        $('#supply_divider_time').val('0:00');
+        $('#supply_consignor2').val('0');
+        $('#supply_consignor2_date').val('');
+        $('#supply_consignor2_time').val('0:00');
+
         $('#new_items_id').val('0');
         $('#new_supply_items_send').val("0");
         $('#new_supply_items_receive').val("0");
@@ -561,6 +620,113 @@ $(function () {
         $('#new_supply_items_order_type').val("Normal Change");
         $('.selectpicker').selectpicker('render');
     }
+
+    $('#btn_calData').on('click', function () {
+
+        callData();
+    });
+    
+    function activeOneDay() {
+        callData();
+        //return true;
+    }
+
+
+//    $('#search').on('keyup', function () {
+//        clearTimeout(timer);
+//        timer = setTimeout(function () {
+//
+//            $('.cls').empty();
+//            $('#select_service_data').empty();
+//            callData();
+//        }, delay);
+//    });
+
+
+//    $('#btn_submit').on('click', function () {
+//        if (checkFormula($('#items_formula').val()) === true) {
+//            var items_code = $("#items_code").val();
+//            var items_name = $("#items_name").val();
+//            var items_formula = '';
+//
+//            if (($('#items_type').val() === 'value') || ($('#items_type').val() === null)) {
+//                items_formula = "";
+//                console.log('in items_formula = ""');
+//            } else {
+//                items_formula = $('#items_formula').val();
+//                items_formula.trim();
+//            }
+//
+//            if (items_code !== "" && items_name !== "" && newData === false) {
+//
+//                $.post('productItems/updateByID', {
+//                    'items_code': $('#items_code').val(),
+//                    'items_name': $('#items_name').val(),
+//                    'items_type': $('#items_type').val(),
+//                    'items_formula': $('#items_formula').val(),
+//                    'items_form': $('#items_form').val(),
+//                    'items_form_input': $('#items_form_input').val(),
+//                    'items_font_bold': $('#items_font_bold').val(),
+//                    'items_form_input_readonly': $('#items_form_input_readonly').val(),
+//                    'items_index': $('#items_index').val(),
+//                    'items_status': $('#items_status').val()
+//
+//                }, function (o) {
+//
+//                    if (o.sta === 'update') {
+//                        if (o.result === true) {
+//                            alert('อัพเดรตข้อมูลสำเร็จ.');
+//                        } else {
+//                            alert('อัพเดรตข้อมูลไม่สำเร็จ.');
+//                        }
+//                        $(".close").click();
+//                        callData($('#search').val(), cPage, $('#select_form').val());
+//                    }
+//
+//                }, 'json');
+//
+//
+//            } else if (items_code !== "" && items_name !== "" && newData === true) {
+//
+//                $.post('productItems/insertByID', {
+//                    'items_code': $('#items_code').val(),
+//                    'items_name': $('#items_name').val(),
+//                    'items_type': $('#items_type').val(),
+//                    'items_form': $('#items_form').val(),
+//                    'items_formula': items_formula,
+//                    'items_form_input_readonly': $('#items_form_input_readonly').val(),
+//                    'items_form_input': $('#items_form_input').val(),
+//                    'items_font_bold': $('#items_font_bold').val(),
+//                    'items_index': $('#items_index').val(),
+//                    'items_status': $('#items_status').val()
+//                }, function (o) {
+//
+//                    if (o.sta === 'add') {
+//                        if (o.result === true) {
+//                            alert('เพิ่มข้อมูลสำเร็จ.');
+//                        } else {
+//                            alert('เพิ่มข้อมูลไม่สำเร็จ.');
+//                        }
+//                        $(".close").click();
+//                        callData($('#search').val(), cPage, $('#select_form').val());
+//                    }
+//
+//                }, 'json');
+//
+//            } else {
+//                alertInit('danger', 'ผิดพลาด! ไม่สามารถเพิ่มหรือแก้ไขข้อมูลได้...');
+//                alertShow();
+//
+//            }
+//            return false;
+//        }
+//        return false;
+//
+//    });
+
+
+
+
 
 
 //    $('#btn_reset').on('click', function () {
@@ -579,40 +745,29 @@ $(function () {
 //    });
 
 
-    $('#choose-items').on('click', function () {
-        callDataItems();
+//    $('#choose-items').on('click', function () {
+//        callDataItems();
+//
+//    });
+//
+//    $('#select_form').on('change', function () {
+//        callData('', 1, $('#select_form').val());
+//        callItemsStatusY();
+//
+//    });
+//
+//
+//    $('#items_type').on('change', function () {
+//        checkItemsType();
+//
+//    });
+//
+//
+//    $('#btn_chk_formula').on('click', function () {
+//        checkFormula($('#items_formula').val());
+//        return true;
+//
+//    });
 
-    });
-
-    $('#select_form').on('change', function () {
-        callData('', 1, $('#select_form').val());
-        callItemsStatusY();
-
-    });
-
-
-    $('#items_type').on('change', function () {
-        checkItemsType();
-
-    });
-
-
-    $('#btn_chk_formula').on('click', function () {
-        checkFormula($('#items_formula').val());
-        return true;
-
-    });
-
-    function findIndexOfStr(str, char) {
-        var n = str.indexOf(char);
-        return n;
-    }
-
-    function substrCodeOfString(str, indexStart, indexEnd) {
-        str = str.trim();
-        str = str.substr(indexStart + 1, (indexEnd - indexStart - 1));
-        return str;
-
-    }
 
 });

@@ -17,7 +17,7 @@ $active = ' class="active"';
         <div class="collapse navbar-collapse" id="navNMS">
             <input type="hidden" id="user_session" name="user_session"  value="<?= sizeof($User); ?>" />
             <input type="hidden" id="depart_id" name="depart_id"  value="<?= $User['depart_id']; ?>" />
-            <input type="hidden" id="user_type" name="user_type"  value="<?= $User['Productivity_system']; ?>" />
+            <input type="hidden" id="user_type" name="user_type"  value="<?= $User['Supply_system']; ?>" />
             <ul class="nav navbar-nav">
                 <li <?= ($this->pageMenu == 'index' || $this->pageMenu == '') ? $active : ''; ?>>
                     <a href="<?= URL; ?>index"><span class="glyphicon glyphicon-home"></span> หน้าแรก</a></li>
@@ -28,7 +28,7 @@ $active = ' class="active"';
                         <a href="<?= URL; ?>supply"><span class="glyphicon glyphicon-edit"></span> เบิก-จ่ายอุปกรณ์</a>
                     </li>
                    
-                    <?php  if(like_match('%admin%',$User['Productivity_system']) == TRUE){ ?>
+                    <?php  if(like_match('%admin%',$User['Supply_system']) == TRUE){ ?>
                         
                         <li <?= ($this->pageMenu == 'hardware' || $this->pageMenu == 'hardware_type' || $this->pageMenu == 'symptom' || $this->pageMenu == 'depart' || $this->pageMenu == 'technician' || $this->pageMenu == 'service_status' || $this->pageMenu == 'store' || $this->pageMenu == 'store_type' || $this->pageMenu == 'items') ? $active : ''; ?> class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><span class="glyphicon glyphicon-cog"></span> ตั้งค่า<span class="caret"></span></a>

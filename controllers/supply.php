@@ -33,9 +33,14 @@ class Supply extends Controller {
         $this->view->getItemsStatusY = $this->getItemsStatusY();
         $this->view->rander('supply/index');
     }
-    
-    function print_preview() {
-        $this->view->getDataSupplyByID = $this->getSupplyByIDforPDF();
+
+    function print_preview($supply_id) {
+        $data = $this->model->getDataSupplyByIDForPDF($supply_id);
+        $data2 = $this->model->getDataSupplyItemsByIDForPDF($supply_id);
+        $this->view->print_preview = $data;
+        $this->view->print_table = array($data2);
+        //echo json_encode($data);
+        //$this->view->getDataSupplyByID = $this->getSupplyByIDforPDF();
         $this->view->randerContent('supply/print_preview');
     }
 
@@ -60,7 +65,7 @@ class Supply extends Controller {
         $data = $this->model->getDataSupplyByID();
         echo json_encode($data);
     }
-    
+
     function getSupplyByIDforPDF() {
         return $this->model->getDataSupplyByID();
     }
@@ -69,7 +74,7 @@ class Supply extends Controller {
         $data = $this->model->getDataSupplyItemsByID();
         echo json_encode($data);
     }
-    
+
     public function getDepart() {
         $this->loadModel('depart');
         return $this->model->departRs();
@@ -79,8 +84,8 @@ class Supply extends Controller {
         $this->loadModel('personal');
         return $this->model->personalRs();
     }
-    
-     public function getItemsStatusY() {
+
+    public function getItemsStatusY() {
         $this->loadModel('items');
         return $this->model->getDataItemsStatusY();
     }
@@ -91,18 +96,103 @@ class Supply extends Controller {
 
         return $enumList;
     }
-    
+
     function getOrderType() {
         $result = $this->model->getDataOrderType();
         $enumList = explode(",", str_replace("'", "", substr($result, 5, (strlen($result) - 6))));
         //var_dump($enumList);
         return $enumList;
     }
-    
+
     function getOrderTypeJSon() {
-       $result = $this->model->getDataOrderType();
+        $result = $this->model->getDataOrderType();
         $enumList = explode(",", str_replace("'", "", substr($result, 5, (strlen($result) - 6))));
         echo json_encode($enumList);
     }
-    
+
+    function insertSupply() {
+        // var_dump($_POST['arrSupplyHead']);
+        //var_dump($_POST['arrSupplyItems']);
+
+        $arrSupplyHead = $_POST['arrSupplyHead'];
+        $arrSupplyItems = $_POST['arrSupplyItems'];
+        $supply_id = '';
+        $result = true;
+        $result2 = true;
+        $resultSupplyHead = true;
+        $resultSupplyItems = true;
+
+
+        /*         * ** Supply *** */
+        if (sizeof($_POST['arrSupplyHead']) > 0) {
+
+            foreach ($arrSupplyHead as $k => $v) {
+
+
+                if ($v["supply_id"] === "") {
+                    $content = $v["supply_date"] . $v["supply_shift"] . $v["supply_depart"];
+                    //var_dump($this->model->getDataSupplyIdByContent($content));
+                    if ($this->model->getDataSupplyIdByContent($content) === 'NULL') {
+                        $result = $this->model->insertSupplyData($v);
+                        if ($resultSupplyHead !== false) {
+                            $resultSupplyHead = $result;
+                            $supply_id = $this->model->getDataSupplyIdByContent($content);
+                            //var_dump('$supply_id insertSupplyData:=' + $supply_id);
+                        }
+                    } else {
+                        $resultSupplyHead = false;
+                    }
+                } else {
+                    //var_dump('in else _ update');
+                    $supply_id = $v["supply_id"];
+                    $result = $this->model->updateSupplyData($v);
+                    if ($resultSupplyHead !== false) {
+                        $resultSupplyHead = $result;
+                    } else {
+                        $resultSupplyHead = '';
+                    }
+                }
+            }
+        }
+
+        /*         * ** SupplyItems *** */
+        if (sizeof($_POST['arrSupplyItems']) > 0) {
+            foreach ($arrSupplyItems as $k => $v) {
+                if (isset($v["manage"])) {
+                    $hos_guid = $v["hos_guid"];
+                    $manage = strtoupper($v["manage"]);
+
+                    if ($manage === 'NEW') {
+                        $result = $this->model->insertSupplyItemsData($v, $supply_id);
+                        //var_dump('insert SupplyItems supply_id:=' . $supply_id );
+                        if ($resultSupplyItems !== false) {
+                            $resultSupplyItems = $result;
+                        }
+                    } elseif ($manage === 'EDIT') {
+                        $result = $this->model->updateSupplyItemsData($v, $hos_guid);
+                        if ($resultSupplyItems !== false) {
+                            $resultSupplyItems = $result;
+                        }
+                    } elseif ($manage === 'DELETE') {
+                        $result = $this->model->deleteSupplyItemsDataById($v["hos_guid"]);
+                        if ($resultSupplyItems !== false) {
+                            $resultSupplyItems = $result;
+                        }
+                    }
+                }
+            }
+        }
+        if($resultSupplyHead === true && $resultSupplyItems === true){
+            $result2 = true;
+        }else{
+            $result2 = false;
+        }
+        $data = array('resultUpdateSupply' => $result2, 'resultSupplyHead' => $resultSupplyHead, 'resultSupplyItems' => $resultSupplyItems);
+        echo json_encode($data);
+    }
+
+    function insert($arrData) {
+        return $this->model->insertData($arrData);
+    }
+
 }

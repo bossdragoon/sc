@@ -6,21 +6,20 @@ $active = ' class="active"';
 <div class="form-horizontal" id="mainForm" name ="mainForm">
     <h1>จัดการเบิก-จ่ายอุปกรณ์</h1>
     <p>รายการเบิก-จ่ายอุปกรณ์</p>
-    <?php
-    $logged = Session::get(SESSION_USER);
-    ?>
     <div class="form-horizontal" > 
-        <input type="hidden" id="username" name="username"  value="<?= $logged['person_username'] ?>" />
+        <input type="hidden" id="username" name="username"  value="<?= $User['person_username'] ?>" />
+        <input type="hidden" id="user_dept" name="user_dept"  value="<?= $User['depart_id']; ?>" />
+        <input type="hidden" id="user_type"  name="user_type" value="<?= $User['Supply_system']; ?>" /> 
 
         <div class="row">
             <div class="col-md-11">
 
                 <div class="form-group" id="div_select_date" name="div_select_date" >
-                    <div class="form-group col-xs-12 col-lg-9" id="div_date1">
+                    <div class="form-group col-xs-12 col-lg-9" id="div_select_date">
                         <label class="control-label col-lg-5" for="search">เลือกวันที่ :</label>
                         <div class="input-group col-xs-7 col-lg-7">
                             <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-                            <input type="text" id="date1" name="date1" class="form-control" value="<?= date('Y-m-d') ?>" />
+                            <input type="text" id="select_date" name="select_date" class="form-control" value="<?= date('Y-m-d') ?>" />
                         </div>
                     </div>
                 </div>
@@ -39,7 +38,7 @@ $active = ' class="active"';
                                 </select>
                             </div>
                             <div class="col-lg-2">
-                                <button type="button" id="btn_submit" class="btn btn-primary col-lg-12">Call Data</button> 
+                                <button type="button" id="btn_calData" class="btn btn-primary col-lg-12">Call Data</button> 
                             </div>
                         </div>                        
                     </div>
@@ -128,7 +127,7 @@ $active = ' class="active"';
                     <div class="modal-header">
                         <button id="model-close" type="button" class="close" data-dismiss="modal" aria-label="Close"><span readonly>&times;</span></button>
                         <h4 class="modal-title" id="gridSystemModalLabel" >บันทึกข้อมูลเบิก-จ่ายอุปกรณ์   [ เลขที่ :: <label id="label_supply_id"></label>   หน่วยงาน/Ward :: <label id="label_supply_depart"></label> ] </h4>
-                        <input type="hidden" id="userPerson_id" name="userPerson_id" value="<?= $logged['person_id']; ?>" />
+                        <input type="hidden" id="userPerson_id" name="userPerson_id" value="<?= $User['person_id']; ?>" />
                         <input type="hidden" id="supply_id" name="supply_id" />
                     </div>
                     <div class="modal-body">
@@ -348,6 +347,7 @@ $active = ' class="active"';
                                             </tr>
                                         </thead>
                                         <tbody id="tables_data_supply_items"></tbody>
+                                        <input type="hidden" id="arrSupplyItems" name="arrSupplyItems" value="">
     <!--                                    <tfoot>
                                             <tr>
                                                 <td class="text-center col-sm-6" colspan="4"></td>
@@ -359,7 +359,7 @@ $active = ' class="active"';
                                 </div>
                                 <!--                                <div class="col-md-12 text-success">&nbsp;&nbsp;&nbsp;&nbsp;--&nbsp;ทั้งหมด--&nbsp;&nbsp;&nbsp;&nbsp;
                                                                     <input type="text" class="text-right" id="sum_price_all_jobs" name="sum_price_all_jobs" size="8" value="SUM&nbsp;ALL" disabled />
-                                                                    <input type="hidden" id="arrJobs" name="arrJobs" value="">
+                                                                    
                                                                 </div>-->
                             </div>
                         </div>
@@ -370,10 +370,10 @@ $active = ' class="active"';
                                 <tr>
     <!--                                <td class="col-xs-3 col-md-2 col-lg-2 text-center">ราคารวม <label id="sumAllService" name="sumAllService">1.00</label> บาท</td>
                                     <td class="col-xs-4 col-md-3 col-lg-2 text-center"> [<label id="sumAllServiceThaiBaht" name="sumAllServiceThaiBaht">หนึ่งบาทถ้วน</label>] </td>-->
-                                    <td class="col-xs-5 col-md-7 col-lg-8 text-right"><button type="submit" id="btn_submit_jobpart" class="btn btn-primary">Save
+                                    <td class="col-xs-5 col-md-7 col-lg-8 text-right"><button type="submit" id="btn_submit_supply" class="btn btn-primary">Save
                                             <span class="glyphicon glyphicon-off"></span>
                                         </button>
-                                        <button type="button" id="btn_reset_jobpart" class="btn btn-danger">Reset
+                                        <button type="button" id="btn_reset_supply" class="btn btn-danger">Reset
                                             <span class="glyphicon glyphicon-repeat"></span>
                                         </button>
                                     </td>
@@ -396,6 +396,7 @@ $active = ' class="active"';
                 <tr>
                     <th style="text-align: center;" width="50px" > # </th>
                     <th style="text-align: center;" width="180px"> หน่วยงาน </th>
+                    <th style="text-align: center; display: none;" width="180px" id = "th-tbSupply-supply_shift"> เวร </th>
                     <th style="text-align: center;" width="80"> จำนวนเบิก<br>(รายการ) </th>
                     <th style="text-align: center;" width="150px"> ส่งอุปกรณ์ </th>
                     <th style="text-align: center;" width="150px"> เวลา<br>ส่งอุปกรณ์ </th>

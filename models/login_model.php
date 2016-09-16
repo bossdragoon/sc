@@ -11,7 +11,7 @@ class Login_Model extends Model {
         //,p.NurseManage_system
         // database name db_skh from 192.168.2.250
         $sql = "SELECT p.person_id,pf.prefix_name as prefix,p.person_firstname as firstname,person_lastname as lastname,o.ward_id,o.ward_name as office,po.position_name as position
-                                ,p.person_username,p.person_photo,p.Productivity_system
+                                ,p.person_username,p.person_photo,p.Supply_system
                                 FROM personal p
                                 LEFT OUTER JOIN prefix pf ON pf.prefix_id = p.person_prefix
                                 LEFT OUTER JOIN office_sit o ON o.ward_id = p.office_id

@@ -95,7 +95,7 @@
                     </div>
                 </div>
             </div>
-            <?php if (like_match('%admin%', $User['Productivity_system']) == TRUE) { ?>
+            <?php if (like_match('%admin%', $User['Supply_system']) == TRUE) { ?>
                 <div id="div_config_user" >
                     <div class="hidden-xs">
                         <div class="panel panel-default">
