@@ -105,10 +105,10 @@ $active = ' class="active"';
         <div class="form-group">
             <label class="col-sm-2 control-label" for="show_dialog"></label> 
             <div id="supply_mode" class="col-sm-10" >
-                <button type="button" id="dgSend" data-mode="send" class="btn btn-default col-sm-2" >ส่งอุปกรณ์<!--<span class="glyphicon glyphicon-stop" style="color:blue;"></span>--></button> 
-                <button type="button" id="dgReceive" data-mode="receive" class="btn btn-default col-sm-2" >รับอุปกรณ์</button> 
-                <button type="button" id="dgDivide" data-mode="divide" class="btn btn-default col-sm-2" >จ่ายอุปกรณ์</button> 
-                <button type="button" id="dgReceive2" data-mode="receive2" class="btn btn-default col-sm-2" >รับอุปกรณ์ปราศจากเชื้อ</button> 
+                <button type="button" id="dgSend" data-mode="send" class="btn col-sm-2" >ส่งอุปกรณ์<!--<span class="glyphicon glyphicon-stop" style="color:blue;"></span>--></button> 
+                <button type="button" id="dgReceive" data-mode="receive" class="btn col-sm-2" >รับอุปกรณ์</button> 
+                <button type="button" id="dgDivide" data-mode="divide" class="btn col-sm-2" >จ่ายอุปกรณ์</button> 
+                <button type="button" id="dgReceive2" data-mode="receive2" class="btn col-sm-2" >รับอุปกรณ์ปราศจากเชื้อ</button> 
 
             </div>
             <div class="col-sm-10" >

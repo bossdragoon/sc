@@ -58,7 +58,8 @@ class Supply_Model extends Model {
                 0 as supply_items_order_type,
                 0 as cnt_items,
                 '' as hos_guid,
-                'not_send' as supply_status
+                'not_send' as supply_status,
+                'none' as step_status
                 FROM supply_depart
                 WHERE 1 = 1 
                 and cssd_status = 'Y'
@@ -69,11 +70,11 @@ class Supply_Model extends Model {
                 )";
 
                 break;
-            case "receive": $sqlCondition .= "AND (s.supply_consignor = '' OR s.supply_consignor IS NULL) ";
+            case "receive": $sqlCondition .= "AND (s.supply_consignee <> '' OR s.supply_consignee IS NOT NULL) AND (s.supply_consignor = '' OR s.supply_consignor IS NULL) ";
                 break;
-            case "divide": $sqlCondition .= "AND (s.supply_consignor <> '' OR s.supply_consignor IS NOT NULL) AND (s.supply_divider = '' OR s.supply_divider IS NULL) ";
+            case "divide": $sqlCondition .= "AND (s.supply_consignee <> '' OR s.supply_consignee IS NOT NULL) AND (s.supply_consignor <> '' OR s.supply_consignor IS NOT NULL) AND (s.supply_divider = '' OR s.supply_divider IS NULL) ";
                 break;
-            case "receive2": $sqlCondition .= "AND (s.supply_consignor <> '' OR s.supply_consignor IS NOT NULL) AND (s.supply_divider <> '' OR s.supply_divider IS NOT NULL) AND (s.supply_divider = '' OR s.supply_consignor2 IS NULL) ";
+            case "receive2": $sqlCondition .= "AND (s.supply_consignee <> '' OR s.supply_consignee IS NOT NULL) AND (s.supply_consignor <> '' OR s.supply_consignor IS NOT NULL) AND (s.supply_divider <> '' OR s.supply_divider IS NOT NULL) AND (s.supply_divider2 = '' OR s.supply_consignor2 IS NULL) ";
                 break;
             default : break;
         }
@@ -104,7 +105,8 @@ class Supply_Model extends Model {
                 si.supply_items_order_type,
                 count(si.items_id) as cnt_items,
                 si.hos_guid,
-                'send' as supply_status
+                'send' as supply_status,
+                if((s.supply_consignee is not NULL) and (s.supply_consignor is not NULL) and (s.supply_divider is not NULL) and (s.supply_consignor2 is not NULL),4,if((s.supply_consignee is not NULL) and (s.supply_consignor is not NULL) and (s.supply_divider is not NULL) and (s.supply_consignor2 is NULL),3,if((s.supply_consignee is not NULL) and (s.supply_consignor is not NULL) and (s.supply_divider is NULL) and (s.supply_consignor2 is NULL),2,if((s.supply_consignee is not NULL) and (s.supply_consignor is NULL) and (s.supply_divider is NULL) and (s.supply_consignor2 is NULL),1,if((s.supply_consignee is NULL) and (s.supply_consignor is NULL) and (s.supply_divider is NULL) and (s.supply_consignor2 is NULL),0,0))))) as step_status
                 FROM supply_items AS si
                 LEFT OUTER JOIN supply AS s ON s.supply_id = si.supply_id
                 LEFT OUTER JOIN supply_depart AS d ON d.depart_id = s.supply_depart
@@ -305,16 +307,16 @@ class Supply_Model extends Model {
     }
 
     public function updateSupplyData($arr) {
- 
+
         $supply_consignor_time = ($arr['supply_consignee_time'] <> " " ? "" : "");
-        
-        
+
+
 //        if($arr['supply_consignee_time'] === " "){
 //            $supply_consignor_time = "";
 //        }else{
 //            $supply_consignor_time = " supply_consignee_time = :supply_consignee_time, ";
 //        }
-        
+
         $sql = " UPDATE supply SET supply_date = :supply_date, supply_shift = :supply_shift, supply_depart = :supply_depart, 
                 supply_consignee = :supply_consignee, 
                 supply_consignee_time = :supply_consignee_time,
@@ -322,13 +324,27 @@ class Supply_Model extends Model {
                 supply_consignor_time = :supply_consignor_time, 
                 supply_divider = :supply_divider, 
                 supply_divider_time = :supply_divider_time, 
-                supply_consignor2 = :supply_consignor2, 
-                supply_consignor2_time = :supply_consignor2_time
+                supply_consignor2 = :supply_consignor2
                 WHERE supply_id = :supply_id ";
         echo $sql;
         $sth = $this->db->prepare($sql);
 
         if ($sth) {
+//            $data = array(
+//                'supply_id' => $arr['supply_id'],
+//                'supply_date' => $arr['supply_date'],
+//                'supply_shift' => $arr['supply_shift'],
+//                'supply_depart' => $arr['supply_depart'],
+//                'supply_consignee' => $arr['supply_consignee'],
+//                'supply_consignee_time' => $arr['supply_consignee_time'],
+//                'supply_consignor' => $arr['supply_consignor'],
+//                'supply_consignor_time' => $arr['supply_consignor_time'],
+//                'supply_divider' => $arr['supply_divider'],
+//                'supply_divider_time' => $arr['supply_divider_time'],
+//                'supply_consignor2' => $arr['supply_consignor2'],
+//                'supply_consignor2_time' => $arr['supply_consignor2_time']
+//            );
+            
             $data = array(
                 'supply_id' => $arr['supply_id'],
                 'supply_date' => $arr['supply_date'],
@@ -340,10 +356,9 @@ class Supply_Model extends Model {
                 'supply_consignor_time' => $arr['supply_consignor_time'],
                 'supply_divider' => $arr['supply_divider'],
                 'supply_divider_time' => $arr['supply_divider_time'],
-                'supply_consignor2' => $arr['supply_consignor2'],
-                'supply_consignor2_time' => $arr['supply_consignor2_time']
+                'supply_consignor2' => $arr['supply_consignor2']
             );
-
+            
             $sth->execute($data);
             $errorInfo = $sth->errorInfo();
             var_dump($errorInfo);

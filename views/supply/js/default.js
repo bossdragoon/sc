@@ -87,29 +87,6 @@ $(function () {
         callData();
     });
     
-    $('#dgSend').on('click', function () {
-        $('#dgSend').addClass('btn btn-info');
-        $('#dgReceive').removeClass('btn btn-info');
-        $('#dgReceive').addClass('btn btn-default');
-        $('#dgDivide').removeClass('btn btn-info');
-        $('#dgDivide').addClass('btn btn-default');
-        $('#dgReceive2').removeClass('btn btn-info');
-        $('#dgReceive2').addClass('btn btn-default');
-        activeOneDay($('#date1').val());
-    });
-    
-    $('#dgReceive').on('click', function () {
-        // activeTabRec();
-    });
-    
-    $('#dgDivide').on('click', function () {
-        // activeTabDiv();
-    });
-    
-    $('#dgReceive2').on('click', function () {
-        // activeTabRec2();
-    });
-
     function highlightSelButton() {
 
         var mode = ($("#select_supply_mode").val() !== "" ? $("#select_supply_mode").val() : "send");
@@ -168,15 +145,15 @@ $(function () {
     function callDataItem(page, mode, depart) {
 
         var mode = (mode !== "undefined" ? mode : "send");
-
+        var color = '';
         var supply_date = $('#select_date').val();
         var supply_shift = $('#select_shift').val();
-         depart = '55';
-         user_type = callUserType($('#user_type').val());
-         console.log('user_type:='+user_type);
+        depart = '55';
+        user_type = callUserType($('#user_type').val());
+        console.log('user_type:=' + user_type);
         var data = {
             'supply_depart': depart,
-            'user_type': user_type, 
+            'user_type': user_type,
             'supply_date': supply_date,
             'supply_shift': supply_shift,
             'supply_mode': mode
@@ -195,9 +172,33 @@ $(function () {
             //console.log(o);
             for (var i = 0; i < o.length; i++) {
                 j = i + 1;
-                color = 'style="background-color:#FFFFCC;"';
-                color = 'style="background-color:' + o[i].status_color + ';"';
-                strTable += '<tr class="dataTr' + o[i].data_id + ' cls">';
+                x = j % 2;
+                if (o[i]['step_status'] === '0') {
+                    color = 'style="color:#AB031F;"';
+
+                } else if (o[i]['step_status'] === '1') { //
+                    color = 'style="color:#034113;"';
+
+                } else if (o[i]['step_status'] === '2') { //B21954
+                    color = 'style="color:#193AB2;"';
+
+                } else if (o[i]['step_status'] === '3') { //B21954
+                    color = 'style="color:#84510B;"';
+
+                } else if (o[i]['step_status'] === '4') { //B21954
+                    color = 'style="color:#0E0C0C;"';
+
+                } else {
+                    color = 'style="color:#8B8385;"';
+
+                }
+
+
+
+
+
+                //color = 'style="background-color:' + o[i].status_color + ';"';
+                strTable += '<tr class="dataTr' + o[i].data_id + ' cls" ' + color + ' >';
                 //style="background-color:#FFFFCC;" 
                 cnt_items = (o[i]['cnt_items'] >= 1 ? o[i]['cnt_items'] : "");
                 supply_consignee_time = (o[i]['supply_consignee_time'] !== '0000-00-00 00:00:00' ? o[i]['supply_consignee_time'] : "");
@@ -205,7 +206,7 @@ $(function () {
                 supply_divider_time = (o[i]['supply_divider_time'] !== '0000-00-00 00:00:00' ? o[i]['supply_divider_time'] : "");
                 supply_consignor2_time = (o[i]['supply_consignor2_time'] !== '0000-00-00 00:00:00' ? o[i]['supply_consignor2_time'] : "");
                 strTable += ''
-                        + '<td align="right"  title="" > ' + j + '</td>'
+                        + '<td align="right" title="" > ' + j + ' </td>'
                         + '<td align="left" title="" id="' + i + '" > ' + o[i]['depart_name'] + ' </td>'
                         + '<td align="left" title="" style="display: none;" id="supply_shift-' + i + '" ><label id="' + i + '" >' + o[i]['supply_shift'] + '</label></td>'
                         + '<td align="right" title="" id="' + i + '">' + cnt_items + '</td>'
@@ -625,7 +626,7 @@ $(function () {
 
         callData();
     });
-    
+
     function activeOneDay() {
         callData();
         //return true;
