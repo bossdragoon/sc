@@ -86,7 +86,7 @@ $(function () {
 
         callData();
     });
-    
+
     function highlightSelButton() {
 
         var mode = ($("#select_supply_mode").val() !== "" ? $("#select_supply_mode").val() : "send");
@@ -148,7 +148,7 @@ $(function () {
         var color = '';
         var supply_date = $('#select_date').val();
         var supply_shift = $('#select_shift').val();
-        depart = '55';
+        depart = $('#user_dept').val();
         user_type = callUserType($('#user_type').val());
         console.log('user_type:=' + user_type);
         var data = {
@@ -163,9 +163,13 @@ $(function () {
             var strTable = "";
             var j = 0;
             var cnt_items = "";
+            var supply_consignee_name = "";
             var supply_consignee_time = "";
+            var supply_consignor_name = "";
             var supply_consignor_time = "";
+            var supply_divider_name = "";
             var supply_divider_time = "";
+            var supply_consignor2_name = "";
             var supply_consignor2_time = "";
             $('#listingsDataSupply').empty();
 
@@ -193,30 +197,31 @@ $(function () {
 
                 }
 
-
-
-
-
                 //color = 'style="background-color:' + o[i].status_color + ';"';
                 strTable += '<tr class="dataTr' + o[i].data_id + ' cls" ' + color + ' >';
                 //style="background-color:#FFFFCC;" 
                 cnt_items = (o[i]['cnt_items'] >= 1 ? o[i]['cnt_items'] : "");
-                supply_consignee_time = (o[i]['supply_consignee_time'] !== '0000-00-00 00:00:00' ? o[i]['supply_consignee_time'] : "");
-                supply_consignor_time = (o[i]['supply_consignor_time'] !== '0000-00-00 00:00:00' ? o[i]['supply_consignor_time'] : "");
-                supply_divider_time = (o[i]['supply_divider_time'] !== '0000-00-00 00:00:00' ? o[i]['supply_divider_time'] : "");
-                supply_consignor2_time = (o[i]['supply_consignor2_time'] !== '0000-00-00 00:00:00' ? o[i]['supply_consignor2_time'] : "");
+                supply_consignee_name = (o[i]['supply_consignee_name'] !== null ? o[i]['supply_consignee_name'] : "");
+                supply_consignee_time = (o[i]['supply_consignee_time'] !== null ? o[i]['supply_consignee_time'] : "");
+                supply_consignor_name = (o[i]['supply_consignor_name'] !== null ? o[i]['supply_consignor_name'] : "");
+                supply_consignor_time = (o[i]['supply_consignor_time'] !== null ? o[i]['supply_consignor_time'] : "");
+                supply_divider_name = (o[i]['supply_divider_name'] !== null ? o[i]['supply_divider_name'] : "");
+                supply_divider_time = (o[i]['supply_divider_time'] !== null ? o[i]['supply_divider_time'] : "");
+                supply_consignor2_name = (o[i]['supply_consignor2_name'] !== null ? o[i]['supply_consignor2_name'] : "");
+                supply_consignor2_time = (o[i]['supply_consignor2_time'] !== null ? o[i]['supply_consignor2_time'] : "");
+
                 strTable += ''
                         + '<td align="right" title="" > ' + j + ' </td>'
                         + '<td align="left" title="" id="' + i + '" > ' + o[i]['depart_name'] + ' </td>'
                         + '<td align="left" title="" style="display: none;" id="supply_shift-' + i + '" ><label id="' + i + '" >' + o[i]['supply_shift'] + '</label></td>'
                         + '<td align="right" title="" id="' + i + '">' + cnt_items + '</td>'
-                        + '<td align="left" title="" id="' + i + '" >' + o[i]['supply_consignee_name'] + '</td>'
+                        + '<td align="left" title="" id="' + i + '" >' + supply_consignee_name + '</td>'
                         + '<td align="left" title="" id="' + i + '" >' + supply_consignee_time + '</td>'
-                        + '<td align="left" title="" id="' + i + '" >' + o[i]['supply_consignor_name'] + '</td>'
+                        + '<td align="left" title="" id="' + i + '" >' + supply_consignor_name + '</td>'
                         + '<td align="left" title="" id="' + i + '" >' + supply_consignor_time + '</td>'
-                        + '<td align="left" title="" id="' + i + '" >' + o[i]['supply_divider_name'] + '</td>'
+                        + '<td align="left" title="" id="' + i + '" >' + supply_divider_name + '</td>'
                         + '<td align="left" title="" id="' + i + '" >' + supply_divider_time + '</td>'
-                        + '<td align="left" title="" id="' + i + '" >' + o[i]['supply_consignor2_name'] + '</td>'
+                        + '<td align="left" title="" id="' + i + '" >' + supply_consignor2_name + '</td>'
                         + '<td align="left" title="" id="' + i + '" >' + supply_consignor2_time + '</td>'
                         + '<td>'
                         + '<a class="edit btn btn-info" supply_id="' + o[i].supply_id + '" supply_date="' + o[i].supply_date + '" supply_shift="' + o[i].supply_shift + '" supply_depart="' + o[i].supply_depart + '" depart_name="' + o[i].depart_name + '"href="#" ><span class="glyphicon glyphicon-pencil" aria-hidden="true" title="แก้ไขรายการ"></span></a>'

@@ -7,74 +7,78 @@ class Supply_Model extends Model {
     }
 
     public function sqlSupply() {
-        if (($user_type === 'admin') || ($user_type === 'staff')) {
-            
-        } else {
-            
-        }
-
+        
         $sqlCondition = '';
-        $sqlCondition2 = '';
+        $sqlShift = '';
+        $sqlDate = '';
+        $sqlDept = '';
         $UNION = "";
+        
         $user_type = filter_input(INPUT_GET, 'user_type'); //false if not set,null if filter fail
-        $dept = filter_input(INPUT_GET, 'select_dept'); //false if not set,null if filter fail
+        $dept = filter_input(INPUT_GET, 'supply_depart'); //false if not set,null if filter fail
         $date = filter_input(INPUT_GET, 'supply_date'); //false if not set,null if filter fail
         $shift = filter_input(INPUT_GET, 'supply_shift'); //false if not set,null if filter fail
         $mode = filter_input(INPUT_GET, 'supply_mode'); //false if not set,null if filter fail
 
-        $sqlCondition .= ($date ? "AND s.supply_date = '{$date}' " : "");
-        $sqlCondition2 .= ($date ? "AND s.supply_date = '{$date}' " : "");
+        $sqlDate .= ($date ? " AND s.supply_date = '{$date}' " : "");
 
-        $sqlCondition .= ($shift ? "AND s.supply_shift = '{$shift}' " : "");
-        $sqlCondition2 .= ($shift ? "AND s.supply_shift = '{$shift}' " : "");
-
-
+        if ($user_type <> "user") {
+            $sqlShift .= ($shift ? " AND s.supply_shift = '{$shift}' " : "");
+        } else {
+            $sqlDept .= ($dept ? " AND s.supply_depart = '{$dept}' " : "");
+        }
+       
+       // var_dump($dept);
+        
         switch ($mode) {
             case "send": $sqlCondition .= "";
-                $UNION = " UNION
-                SELECT 
-                depart_id as supply_depart,
-                depart_name,
-                0 as supply_id,
-                '0000-00-00' as supply_date,
-                '' as supply_shift,
-                '' as supply_consignee,
-                '' as supply_consignee_name,
-                '0000-00-00 00:00:00' as supply_consignee_time,
-                '' as supply_consignor,
-                '' as supply_consignor_name,
-                '0000-00-00 00:00:00' as supply_consignor_time,
-                '' as supply_divider,
-                '' as supply_divider_name,
-                '0000-00-00 00:00:00' as supply_divider_time,
-                '' as supply_consignor2,
-                '' as supply_consignor2_name,
-                '0000-00-00 00:00:00' as supply_consignor2_time,
-                0 as supply_items_id,
-                0 as supply_items_send,
-                0 as supply_items_receive,
-                0 as supply_items_divide,
-                0 as supply_items_remain,
-                0 as supply_items_order_type,
-                0 as cnt_items,
-                '' as hos_guid,
-                'not_send' as supply_status,
-                'none' as step_status
-                FROM supply_depart
-                WHERE 1 = 1 
-                and cssd_status = 'Y'
-                AND depart_id not in (
-                SELECT supply_depart from supply s
-                where 1 = 1 
-                {$sqlCondition2}
-                )";
-
+                if ($user_type <> "user") {
+                    $UNION = " UNION
+                        SELECT 
+                        depart_id as supply_depart,
+                        depart_name,
+                        0 as supply_id,
+                        null as supply_date,
+                        '' as supply_shift,
+                        '' as supply_consignee,
+                        '' as supply_consignee_name,
+                        null as supply_consignee_time,
+                        '' as supply_consignor,
+                        '' as supply_consignor_name,
+                        null as supply_consignor_time,
+                        '' as supply_divider,
+                        '' as supply_divider_name,
+                        null as supply_divider_time,
+                        '' as supply_consignor2,
+                        '' as supply_consignor2_name,
+                        null as supply_consignor2_time,
+                        0 as supply_items_id,
+                        0 as supply_items_send,
+                        0 as supply_items_receive,
+                        0 as supply_items_divide,
+                        0 as supply_items_remain,
+                        0 as supply_items_order_type,
+                        0 as cnt_items,
+                        '' as hos_guid,
+                        'not_send' as supply_status,
+                        'none' as step_status
+                        FROM supply_depart
+                        WHERE 1 = 1 
+                        and cssd_status = 'Y'
+                        AND depart_id not in (
+                        SELECT supply_depart from supply s
+                        where 1 = 1 
+                        {$sqlDate}
+                        {$sqlShift}
+                        {$sqlDept}
+                        )";
+                }
                 break;
-            case "receive": $sqlCondition .= "AND (s.supply_consignee <> '' OR s.supply_consignee IS NOT NULL) AND (s.supply_consignor = '' OR s.supply_consignor IS NULL) ";
+            case "receive": $sqlCondition .= "AND (s.supply_consignee <> '' OR s.supply_consignee <> '') AND (s.supply_consignor = '' OR s.supply_consignor = '') ";
                 break;
-            case "divide": $sqlCondition .= "AND (s.supply_consignee <> '' OR s.supply_consignee IS NOT NULL) AND (s.supply_consignor <> '' OR s.supply_consignor IS NOT NULL) AND (s.supply_divider = '' OR s.supply_divider IS NULL) ";
+            case "divide": $sqlCondition .= "AND (s.supply_consignee <> '' OR s.supply_consignee <> '') AND (s.supply_consignor <> '' OR s.supply_consignor <> '') AND (s.supply_divider = '' OR s.supply_divider = '') ";
                 break;
-            case "receive2": $sqlCondition .= "AND (s.supply_consignee <> '' OR s.supply_consignee IS NOT NULL) AND (s.supply_consignor <> '' OR s.supply_consignor IS NOT NULL) AND (s.supply_divider <> '' OR s.supply_divider IS NOT NULL) AND (s.supply_divider2 = '' OR s.supply_consignor2 IS NULL) ";
+            case "receive2": $sqlCondition .= "AND (s.supply_consignee <> '' OR s.supply_consignee <> '') AND (s.supply_consignor <> '' OR s.supply_consignor <> '') AND (s.supply_divider <> '' OR s.supply_divider <> '') AND (s.supply_consignor2 = '' ) ";
                 break;
             default : break;
         }
@@ -87,16 +91,16 @@ class Supply_Model extends Model {
                 s.supply_shift,
                 s.supply_consignee,
                 CONCAT(p1.person_firstname,' ',p1.person_lastname) as supply_consignee_name,
-                s.supply_consignee_time,
+                DATE_FORMAT(s.supply_consignee_time, '%d-%m-%Y %H:%i') as supply_consignee_time,
                 s.supply_consignor,
                 CONCAT(p2.person_firstname,' ',p2.person_lastname) as supply_consignor_name,
-                s.supply_consignor_time,
+                DATE_FORMAT(s.supply_consignor_time, '%d-%m-%Y %H:%i') as supply_consignor_time,
                 s.supply_divider,
                 CONCAT(p3.person_firstname,' ',p3.person_lastname) as supply_divider_name,
-                s.supply_divider_time,
+                DATE_FORMAT(s.supply_divider_time, '%d-%m-%Y %H:%i') as supply_divider_time,
                 s.supply_consignor2,
                 CONCAT(p4.person_firstname,' ',p4.person_lastname) as supply_consignor2_name,
-                s.supply_consignor2_time,
+                DATE_FORMAT(s.supply_consignor2_time, '%d-%m-%Y %H:%i') as supply_consignor2_time,
                 si.supply_items_id,
                 sum(si.supply_items_send) as supply_items_send,
                 si.supply_items_receive,
@@ -106,7 +110,7 @@ class Supply_Model extends Model {
                 count(si.items_id) as cnt_items,
                 si.hos_guid,
                 'send' as supply_status,
-                if((s.supply_consignee is not NULL) and (s.supply_consignor is not NULL) and (s.supply_divider is not NULL) and (s.supply_consignor2 is not NULL),4,if((s.supply_consignee is not NULL) and (s.supply_consignor is not NULL) and (s.supply_divider is not NULL) and (s.supply_consignor2 is NULL),3,if((s.supply_consignee is not NULL) and (s.supply_consignor is not NULL) and (s.supply_divider is NULL) and (s.supply_consignor2 is NULL),2,if((s.supply_consignee is not NULL) and (s.supply_consignor is NULL) and (s.supply_divider is NULL) and (s.supply_consignor2 is NULL),1,if((s.supply_consignee is NULL) and (s.supply_consignor is NULL) and (s.supply_divider is NULL) and (s.supply_consignor2 is NULL),0,0))))) as step_status
+                if((s.supply_consignee <> '') and (s.supply_consignor <> '') and (s.supply_divider <> '') and (s.supply_consignor2 <> ''),4,if((s.supply_consignee <> '') and (s.supply_consignor <> '') and (s.supply_divider <> '') and (s.supply_consignor2 = ''),3,if((s.supply_consignee <> '') and (s.supply_consignor <> '') and (s.supply_divider = '') and (s.supply_consignor2 = ''),2,if((s.supply_consignee <> '') and (s.supply_consignor = '') and (s.supply_divider = '') and (s.supply_consignor2 = ''),1,if((s.supply_consignee = '') and (s.supply_consignor = '') and (s.supply_divider = '') and (s.supply_consignor2 = ''),0,0))))) as step_status
                 FROM supply_items AS si
                 LEFT OUTER JOIN supply AS s ON s.supply_id = si.supply_id
                 LEFT OUTER JOIN supply_depart AS d ON d.depart_id = s.supply_depart
@@ -116,6 +120,9 @@ class Supply_Model extends Model {
                 LEFT OUTER JOIN personal AS p4 ON p4.person_id = s.supply_consignor2
                 WHERE 1 = 1
                 {$sqlCondition}
+                {$sqlDate}
+                {$sqlShift}
+                {$sqlDept}
                 GROUP BY d.depart_name 
                 {$UNION}
                 ORDER BY supply_status desc, depart_name ";
@@ -307,14 +314,17 @@ class Supply_Model extends Model {
     }
 
     public function updateSupplyData($arr) {
+        // $arr['supply_consignee_time']
+        $supply_consignee_time = ($arr['supply_consignee_time'] === " " ? NULL : $arr['supply_consignee_time']);
+        $supply_consignor_time = ($arr['supply_consignor_time'] === " " ? NULL : $arr['supply_consignor_time']);
+        $supply_divider_time = ($arr['supply_divider_time'] === " " ? NULL : $arr['supply_divider_time']);
+        $supply_consignor2_time = ($arr['supply_consignor2_time'] === " " ? NULL : $arr['supply_consignor2_time']);
 
-        $supply_consignor_time = ($arr['supply_consignee_time'] <> " " ? "" : "");
 
-
-//        if($arr['supply_consignee_time'] === " "){
-//            $supply_consignor_time = "";
-//        }else{
-//            $supply_consignor_time = " supply_consignee_time = :supply_consignee_time, ";
+//        if ($arr['supply_consignor2_time'] === " ") {
+//            $supply_consignor2_time = NULL;
+//        } else {
+//            $supply_consignor2_time = $arr['supply_consignor2_time'];
 //        }
 
         $sql = " UPDATE supply SET supply_date = :supply_date, supply_shift = :supply_shift, supply_depart = :supply_depart, 
@@ -324,44 +334,31 @@ class Supply_Model extends Model {
                 supply_consignor_time = :supply_consignor_time, 
                 supply_divider = :supply_divider, 
                 supply_divider_time = :supply_divider_time, 
-                supply_consignor2 = :supply_consignor2
+                supply_consignor2 = :supply_consignor2,
+                supply_consignor2_time = :supply_consignor2_time
                 WHERE supply_id = :supply_id ";
-        echo $sql;
+        //echo $sql;
         $sth = $this->db->prepare($sql);
 
         if ($sth) {
-//            $data = array(
-//                'supply_id' => $arr['supply_id'],
-//                'supply_date' => $arr['supply_date'],
-//                'supply_shift' => $arr['supply_shift'],
-//                'supply_depart' => $arr['supply_depart'],
-//                'supply_consignee' => $arr['supply_consignee'],
-//                'supply_consignee_time' => $arr['supply_consignee_time'],
-//                'supply_consignor' => $arr['supply_consignor'],
-//                'supply_consignor_time' => $arr['supply_consignor_time'],
-//                'supply_divider' => $arr['supply_divider'],
-//                'supply_divider_time' => $arr['supply_divider_time'],
-//                'supply_consignor2' => $arr['supply_consignor2'],
-//                'supply_consignor2_time' => $arr['supply_consignor2_time']
-//            );
-            
             $data = array(
                 'supply_id' => $arr['supply_id'],
                 'supply_date' => $arr['supply_date'],
                 'supply_shift' => $arr['supply_shift'],
                 'supply_depart' => $arr['supply_depart'],
                 'supply_consignee' => $arr['supply_consignee'],
-                'supply_consignee_time' => $arr['supply_consignee_time'],
+                'supply_consignee_time' => $supply_consignee_time,
                 'supply_consignor' => $arr['supply_consignor'],
-                'supply_consignor_time' => $arr['supply_consignor_time'],
+                'supply_consignor_time' => $supply_consignor_time,
                 'supply_divider' => $arr['supply_divider'],
-                'supply_divider_time' => $arr['supply_divider_time'],
-                'supply_consignor2' => $arr['supply_consignor2']
+                'supply_divider_time' => $supply_divider_time,
+                'supply_consignor2' => $arr['supply_consignor2'],
+                'supply_consignor2_time' => $supply_consignor2_time
             );
-            
+
             $sth->execute($data);
             $errorInfo = $sth->errorInfo();
-            var_dump($errorInfo);
+            //var_dump($errorInfo);
             if ($errorInfo[0] === '00000') {
                 return true;
             } else {

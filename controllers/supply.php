@@ -68,6 +68,7 @@ class Supply extends Controller {
 
     function getSupplyByIDforPDF() {
         return $this->model->getDataSupplyByID();
+        //return $this->model->sqlSupply();
     }
 
     function getSupplyItemsByID() {

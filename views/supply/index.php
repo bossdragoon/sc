@@ -37,7 +37,7 @@ $active = ' class="active"';
                                     ?>
                                 </select>
                             </div>
-                            <div class="col-lg-2">
+                           <div class="col-lg-2">
                                 <button type="button" id="btn_calData" class="btn btn-primary col-lg-12">Call Data</button> 
                             </div>
                         </div>                        
@@ -97,7 +97,8 @@ $active = ' class="active"';
                             <input type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2" checked> ขยาย
                         </label> 
                     </div>
-
+               
+                    
                 </div>
             </div>
         </div>
@@ -105,15 +106,12 @@ $active = ' class="active"';
         <div class="form-group">
             <label class="col-sm-2 control-label" for="show_dialog"></label> 
             <div id="supply_mode" class="col-sm-10" >
-                <button type="button" id="dgSend" data-mode="send" class="btn col-sm-2" >ส่งอุปกรณ์<!--<span class="glyphicon glyphicon-stop" style="color:blue;"></span>--></button> 
-                <button type="button" id="dgReceive" data-mode="receive" class="btn col-sm-2" >รับอุปกรณ์</button> 
-                <button type="button" id="dgDivide" data-mode="divide" class="btn col-sm-2" >จ่ายอุปกรณ์</button> 
-                <button type="button" id="dgReceive2" data-mode="receive2" class="btn col-sm-2" >รับอุปกรณ์ปราศจากเชื้อ</button> 
+                <button type="button" id="dgSend" data-mode="send" class="btn col-sm-2 btn-default" >ส่งอุปกรณ์<!--<span class="glyphicon glyphicon-stop" style="color:blue;"></span>--></button> 
+                <button type="button" id="dgReceive" data-mode="receive" class="btn col-sm-2 btn-default" >รับอุปกรณ์</button> 
+                <button type="button" id="dgDivide" data-mode="divide" class="btn col-sm-2 btn-default" >จ่ายอุปกรณ์</button> 
+                <button type="button" id="dgReceive2" data-mode="receive2" class="btn col-sm-2 btn-default" >รับอุปกรณ์ปราศจากเชื้อ</button> 
+            </div>
 
-            </div>
-            <div class="col-sm-10" >
-                <div class="pagin" align="right" style="margin: -20px 10px;"></div>
-            </div>
             <input type="hidden" id="select_supply_mode" value="" />
         </div>
 
@@ -276,7 +274,7 @@ $active = ' class="active"';
                                                 <div class='row'>
                                                     <div class='col-xs-4 col-lg-4 text-left'>
                                                         เลือกอุปกรณ์ :<select class="form-control  selectpicker" id="new_items_id" name="new_items_id" data-live-search="true">
-<!--                                                          <option value="">- - ไม่เลือก - -</option>-->
+                                                            <!--                                                          <option value="">- - ไม่เลือก - -</option>-->
                                                             <?php
                                                             foreach ($this->getItemsStatusY as $value) {
                                                                 echo "<option value='{$value[items_id]}' >{$value[items_name]}</option>";
@@ -363,7 +361,7 @@ $active = ' class="active"';
                                                                 </div>-->
                             </div>
                         </div>
-                        
+
                         <div class='panel panel-default'>
                             <br>
                             <table class="table table-striped">
