@@ -37,7 +37,7 @@ $active = ' class="active"';
                                     ?>
                                 </select>
                             </div>
-                           <div class="col-lg-2">
+                            <div class="col-lg-2">
                                 <button type="button" id="btn_calData" class="btn btn-primary col-lg-12">Call Data</button> 
                             </div>
                         </div>                        
@@ -97,8 +97,8 @@ $active = ' class="active"';
                             <input type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2" checked> ขยาย
                         </label> 
                     </div>
-               
-                    
+
+
                 </div>
             </div>
         </div>
@@ -106,14 +106,24 @@ $active = ' class="active"';
         <div class="form-group">
             <label class="col-sm-2 control-label" for="show_dialog"></label> 
             <div id="supply_mode" class="col-sm-10" >
-                <button type="button" id="dgSend" data-mode="send" class="btn col-sm-2 btn-default" >ส่งอุปกรณ์<!--<span class="glyphicon glyphicon-stop" style="color:blue;"></span>--></button> 
+                <button type="button" id="dgSend" data-mode="send" class="btn col-sm-2 btn-default" >ส่งอุปกรณ์</button> 
                 <button type="button" id="dgReceive" data-mode="receive" class="btn col-sm-2 btn-default" >รับอุปกรณ์</button> 
                 <button type="button" id="dgDivide" data-mode="divide" class="btn col-sm-2 btn-default" >จ่ายอุปกรณ์</button> 
                 <button type="button" id="dgReceive2" data-mode="receive2" class="btn col-sm-2 btn-default" >รับอุปกรณ์ปราศจากเชื้อ</button> 
             </div>
-
             <input type="hidden" id="select_supply_mode" value="" />
         </div>
+        <div class="panel">
+            <div class="panel-body">
+                <div class="col-lg-2"><span class="glyphicon glyphicon-stop" style="color:#8B8385;"></span>&nbsp;ยังไม่มีรายการ</div>
+                <div class="col-lg-2"><span class="glyphicon glyphicon-stop" style="color:#AB031F;"></span>&nbsp;รายการใหม่</div>
+                <div class="col-lg-2"><span class="glyphicon glyphicon-stop" style="color:#034113;"></span>&nbsp;รายการที่มีการส่ง</div>
+                <div class="col-lg-2"><span class="glyphicon glyphicon-stop" style="color:#193AB2;"></span>&nbsp;รายการที่มีการรับ</div>
+                <div class="col-lg-2"><span class="glyphicon glyphicon-stop" style="color:#84510B;"></span>&nbsp;รายการที่มีการจ่าย</div>
+                <div class="col-lg-2"><span class="glyphicon glyphicon-stop" style="color:#0E0C0C;"></span>&nbsp;รายการที่มีการรับอุปกรณ์ปราศจากเชื้อ</div>
+            </div>
+        </div>
+
 
     </div>
 
