@@ -49,10 +49,15 @@ class Supply extends Controller {
     }
 
     function getListings() {
-        $data = $this->model->getDataListings();
+        if(filter_input(INPUT_GET, 'user_type') === 'user'){
+            $data = $this->model->getDataListingsByDepart();
+        }else{
+            $data = $this->model->getDataListings();
+        }
+        //echo filter_input(INPUT_GET, 'user_type');
         echo json_encode($data);
     }
-
+ 
     function Pagination($model = NULL) {
         if ($model) {
             $this->loadModel($model);
@@ -124,16 +129,18 @@ class Supply extends Controller {
         $resultSupplyItems = true;
 
 
-        /*         * ** Supply *** */
+        /* *** Supply *** */
         if (sizeof($_POST['arrSupplyHead']) > 0) {
-
+           
             foreach ($arrSupplyHead as $k => $v) {
+                //echo 'supply_id:='+$v["supply_id"]+'....' ;
 
-
-                if ($v["supply_id"] === "") {
+                if ($v["supply_id"] === "0") {
+                    //var_dump('in insertSupplyData');
                     $content = $v["supply_date"] . $v["supply_shift"] . $v["supply_depart"];
-                    //var_dump($this->model->getDataSupplyIdByContent($content));
-                    if ($this->model->getDataSupplyIdByContent($content) === 'NULL') {
+                    var_dump($this->model->getDataSupplyIdByContent($content));
+                    if ($this->model->getDataSupplyIdByContent($content) === NULL) {
+                        
                         $result = $this->model->insertSupplyData($v);
                         if ($resultSupplyHead !== false) {
                             $resultSupplyHead = $result;
@@ -141,10 +148,11 @@ class Supply extends Controller {
                             //var_dump('$supply_id insertSupplyData:=' + $supply_id);
                         }
                     } else {
+                        //var_dump($content);
                         $resultSupplyHead = false;
                     }
                 } else {
-                    //var_dump('in else _ update');
+                    //var_dump('in updateSupplyData');
                     $supply_id = $v["supply_id"];
                     $result = $this->model->updateSupplyData($v);
                     if ($resultSupplyHead !== false) {

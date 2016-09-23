@@ -393,7 +393,7 @@ $active = ' class="active"';
             <thead>
                 <tr>
                     <th style="text-align: center;" width="50px" > # </th>
-                    <th style="text-align: center;" width="180px"> หน่วยงาน </th>
+                    <th style="text-align: center;" width="180px" id = "th-depart-shitf"> หน่วยงาน </th>
                     <th style="text-align: center; display: none;" width="180px" id = "th-tbSupply-supply_shift"> เวร </th>
                     <th style="text-align: center;" width="80"> จำนวนเบิก<br>(รายการ) </th>
                     <th style="text-align: center;" width="150px"> ส่งอุปกรณ์ </th>

@@ -163,6 +163,7 @@ $(function () {
             var strTable = "";
             var j = 0;
             var cnt_items = "";
+            var depart_or_shift_name = "";
             var supply_consignee_name = "";
             var supply_consignee_time = "";
             var supply_consignor_name = "";
@@ -172,6 +173,12 @@ $(function () {
             var supply_consignor2_name = "";
             var supply_consignor2_time = "";
             $('#listingsDataSupply').empty();
+
+            if (user_type === 'user') {
+                depart_or_shift_name = '';
+            } else {
+                depart_or_shift_name = '';
+            }
 
             //console.log(o);
             for (var i = 0; i < o.length; i++) {
@@ -197,6 +204,12 @@ $(function () {
 
                 }
 
+                if (user_type === 'user') {
+                    depart_or_shift_name = o[i]['supply_shift'];
+                } else {
+                    depart_or_shift_name = o[i]['depart_name'];
+                }
+
                 //color = 'style="background-color:' + o[i].status_color + ';"';
                 strTable += '<tr class="dataTr' + o[i].data_id + ' cls" ' + color + ' >';
                 //style="background-color:#FFFFCC;" 
@@ -212,7 +225,7 @@ $(function () {
 
                 strTable += ''
                         + '<td align="right" title="" > ' + j + ' </td>'
-                        + '<td align="left" title="" id="' + i + '" > ' + o[i]['depart_name'] + ' </td>'
+                        + '<td align="left" title="" id="' + i + '" > ' + depart_or_shift_name + ' </td>'
                         + '<td align="left" title="" style="display: none;" id="supply_shift-' + i + '" ><label id="' + i + '" >' + o[i]['supply_shift'] + '</label></td>'
                         + '<td align="right" title="" id="' + i + '">' + cnt_items + '</td>'
                         + '<td align="left" title="" id="' + i + '" >' + supply_consignee_name + '</td>'
@@ -448,23 +461,32 @@ $(function () {
 
             arrSupplyHead = data;
 
-            console.log(arrSupplyHead);
+            //console.log(arrSupplyHead);
             //console.log(arrSupplyItems);
+            console.log(arrSupplyItems.length);
 
-            $.post('supply/insertSupply', {'arrSupplyHead': arrSupplyHead, 'arrSupplyItems': arrSupplyItems}, function (o) {
-                if (o.resultUpdateSupply === true) {
-                    //alert('บันทึกข้อมูลเรียบร้อย');
+            if (arrSupplyItems.length > 0) {
+
+                $.post('supply/insertSupply', {'arrSupplyHead': arrSupplyHead, 'arrSupplyItems': arrSupplyItems}, function (o) {
+                    if (o.resultUpdateSupply === true) {
+                        //alert('บันทึกข้อมูลเรียบร้อย');
 //                    $('.cls-partsManage').empty();
 //                    $('.cls-jobsManage').empty();
 //                    callDataJobsItems(service_id, perPage_Jobs);
 //                    callDataPartsItems(service_id, perPage_Parts);
 
-                    $('.close').click();
-                } else {
-                    alert("บันทึกข้อมูลไม่สำเร็จ");
-                }
+                        $('.close').click();
+                    } else {
+                        alert("บันทึกข้อมูลไม่สำเร็จ");
+                    }
 
-            }, 'json');
+                }, 'json');
+            }else{
+                alertInit('danger', 'ผิดพลาด! ไม่มีรายการเบิก-จ่าย');
+                alertShow();
+            }
+            
+            
         } else {
             return false;
             exit();
@@ -539,8 +561,8 @@ $(function () {
                     }, 'json');
                 } else {
                     //console.log('2.supply_depart in edit items :=' + supply_depart);
-                    $('#supply_date').val($('#select_date').val());
-                    $('#supply_shift').val($('#select_shift').val());
+                    $('#supply_date').val(supply_date); //$('#select_date').val()
+                    $('#supply_shift').val(supply_shift);
                     $('#supply_depart').val(supply_depart);
                     $('#label_supply_id').text('new ID');
                     $('#label_supply_depart').text(depart_name);

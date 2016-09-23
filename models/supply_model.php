@@ -7,13 +7,13 @@ class Supply_Model extends Model {
     }
 
     public function sqlSupply() {
-        
+
         $sqlCondition = '';
         $sqlShift = '';
         $sqlDate = '';
         $sqlDept = '';
         $UNION = "";
-        
+
         $user_type = filter_input(INPUT_GET, 'user_type'); //false if not set,null if filter fail
         $dept = filter_input(INPUT_GET, 'supply_depart'); //false if not set,null if filter fail
         $date = filter_input(INPUT_GET, 'supply_date'); //false if not set,null if filter fail
@@ -27,9 +27,9 @@ class Supply_Model extends Model {
         } else {
             $sqlDept .= ($dept ? " AND s.supply_depart = '{$dept}' " : "");
         }
-       
-       // var_dump($dept);
-        
+
+        // var_dump($dept);
+
         switch ($mode) {
             case "send": $sqlCondition .= "";
                 if ($user_type <> "user") {
@@ -171,6 +171,127 @@ class Supply_Model extends Model {
         return $data;
     }
 
+    function getDataListingsByDepart() {
+
+        $sql = "    SELECT * FROM (SELECT 
+                        s.supply_depart,
+                        d.depart_name,
+                        s.supply_id,
+                        s.supply_date,
+                        s.supply_shift,
+                        s.supply_consignee,
+                        CONCAT(p1.person_firstname,' ',p1.person_lastname) as supply_consignee_name,
+                        DATE_FORMAT(s.supply_consignee_time, '%d-%m-%Y %H:%i') as supply_consignee_time,
+                        s.supply_consignor,
+                        CONCAT(p2.person_firstname,' ',p2.person_lastname) as supply_consignor_name,
+                        DATE_FORMAT(s.supply_consignor_time, '%d-%m-%Y %H:%i') as supply_consignor_time,
+                        s.supply_divider,
+                        CONCAT(p3.person_firstname,' ',p3.person_lastname) as supply_divider_name,
+                        DATE_FORMAT(s.supply_divider_time, '%d-%m-%Y %H:%i') as supply_divider_time,
+                        s.supply_consignor2,
+                        CONCAT(p4.person_firstname,' ',p4.person_lastname) as supply_consignor2_name,
+                        DATE_FORMAT(s.supply_consignor2_time, '%d-%m-%Y %H:%i') as supply_consignor2_time,
+                        si.supply_items_id,
+                        sum(si.supply_items_send) as supply_items_send,
+                        si.supply_items_receive,
+                        si.supply_items_divide,
+                        si.supply_items_remain,
+                        si.supply_items_order_type,
+                        count(si.items_id) as cnt_items,
+                        si.hos_guid,
+                        'send' as supply_status,
+                        if((s.supply_consignee <> '') and (s.supply_consignor <> '') and (s.supply_divider <> '') and (s.supply_consignor2 <> ''),4,if((s.supply_consignee <> '') and (s.supply_consignor <> '')
+                        and (s.supply_divider <> '') and (s.supply_consignor2 = ''),3,if((s.supply_consignee <> '') and (s.supply_consignor
+                        <> '') and (s.supply_divider = '') and (s.supply_consignor2 = ''),2,if((s.supply_consignee <> '') and
+                        (s.supply_consignor = '') and (s.supply_divider = '') and (s.supply_consignor2 = ''),1,if((s.supply_consignee
+                        = '') and (s.supply_consignor = '') and (s.supply_divider = '') and (s.supply_consignor2 = ''),0,0)
+                       )))) as step_status
+                        FROM supply_items AS si
+                        LEFT OUTER JOIN supply AS s ON s.supply_id = si.supply_id
+                        LEFT OUTER JOIN supply_depart AS d ON d.depart_id = s.supply_depart
+                        LEFT OUTER JOIN personal AS p1 ON p1.person_id = s.supply_consignee
+                        LEFT OUTER JOIN personal AS p2 ON p2.person_id = s.supply_consignor
+                        LEFT OUTER JOIN personal AS p3 ON p3.person_id = s.supply_divider
+                        LEFT OUTER JOIN personal AS p4 ON p4.person_id = s.supply_consignor2
+                        WHERE 1 = 1
+                        AND s.supply_date = '{$_GET['supply_date']}'  
+                        AND s.supply_depart = '{$_GET['supply_depart']}'  
+                        GROUP BY si.supply_id
+
+               UNION
+                    SELECT 
+                        depart_id as supply_depart,
+                        depart_name,
+                        0 as supply_id,
+                        '{$_GET['supply_date']}' as supply_date,
+                        'morning' as supply_shift,
+                        '' as supply_consignee,
+                        '' as supply_consignee_name,
+                        null as supply_consignee_time,
+                        '' as supply_consignor,
+                        '' as supply_consignor_name,
+                        null as supply_consignor_time,
+                        '' as supply_divider,
+                        '' as supply_divider_name,
+                        null as supply_divider_time,
+                        '' as supply_consignor2,
+                        '' as supply_consignor2_name,
+                        null as supply_consignor2_time,
+                        0 as supply_items_id,
+                        0 as supply_items_send,
+                        0 as supply_items_receive,
+                        0 as supply_items_divide,
+                        0 as supply_items_remain,
+                        0 as supply_items_order_type,
+                        0 as cnt_items,
+                        '' as hos_guid,
+                        'not_send' as supply_status,
+                        'none' as step_status
+                        FROM supply_depart
+                        WHERE 1 = 1 
+                        AND depart_id = '{$_GET['supply_depart']}'  
+		UNION
+                        SELECT 
+                        depart_id as supply_depart,
+                        depart_name,
+                        0 as supply_id,
+                        '{$_GET['supply_date']}' as supply_date,
+                        'afternoon' as supply_shift,
+                        '' as supply_consignee,
+                        '' as supply_consignee_name,
+                        null as supply_consignee_time,
+                        '' as supply_consignor,
+                        '' as supply_consignor_name,
+                        null as supply_consignor_time,
+                        '' as supply_divider,
+                        '' as supply_divider_name,
+                        null as supply_divider_time,
+                        '' as supply_consignor2,
+                        '' as supply_consignor2_name,
+                        null as supply_consignor2_time,
+                        0 as supply_items_id,
+                        0 as supply_items_send,
+                        0 as supply_items_receive,
+                        0 as supply_items_divide,
+                        0 as supply_items_remain,
+                        0 as supply_items_order_type,
+                        0 as cnt_items,
+                        '' as hos_guid,
+                        'not_send' as supply_status,
+                        'none' as step_status
+                        FROM supply_depart
+                        WHERE 1 = 1 
+                        AND depart_id = '{$_GET['supply_depart']}' 
+          ) as x
+                WHERE x.supply_shift is not NULL
+		GROUP BY x.supply_depart, x.supply_date, x.supply_shift
+		ORDER BY x.supply_shift desc";
+
+        //echo $sql;
+        $data = $this->db->select($sql);
+        return $data;
+    }
+
     function getDataSupplyByID() {
         $sql = "SELECT
                     s.supply_id, s.supply_date, s.supply_shift, s.supply_depart, d.depart_name, s.supply_consignee,
@@ -282,28 +403,52 @@ class Supply_Model extends Model {
     }
 
     public function insertSupplyData($arr) {
+
+        $supply_consignee_time = ($arr['supply_consignee_time'] === " " || $arr['supply_consignee_time'] === " 0:00" ? NULL : $arr['supply_consignee_time']);
+        $supply_consignor_time = ($arr['supply_consignor_time'] === " " || $arr['supply_consignor_time'] === " 0:00" ? NULL : $arr['supply_consignor_time']);
+        $supply_divider_time = ($arr['supply_divider_time'] === " " || $arr['supply_divider_time'] === " 0:00" ? NULL : $arr['supply_divider_time']);
+        $supply_consignor2_time = ($arr['supply_consignor2_time'] === " " || $arr['supply_consignor2_time'] === " 0:00" ? NULL : $arr['supply_consignor2_time']);
+
         $sql = 'INSERT INTO supply (supply_date, supply_shift, supply_depart, supply_consignee, supply_consignee_time, supply_consignor, supply_consignor_time, supply_divider, supply_divider_time, supply_consignor2, supply_consignor2_time) '
                 . ' VALUES (:supply_date, :supply_shift, :supply_depart, :supply_consignee, :supply_consignee_time, :supply_consignor, :supply_consignor_time, :supply_divider, :supply_divider_time, :supply_consignor2, :supply_consignor2_time ) ';
 
+        //echo $sql;
         $sth = $this->db->prepare($sql);
         if ($sth) {
+
             $data = array(
                 'supply_date' => $arr['supply_date'],
                 'supply_shift' => $arr['supply_shift'],
                 'supply_depart' => $arr['supply_depart'],
                 'supply_consignee' => $arr['supply_consignee'],
-                'supply_consignee_time' => $arr['supply_consignee_time'],
+                'supply_consignee_time' => $supply_consignee_time,
                 'supply_consignor' => $arr['supply_consignor'],
-                'supply_consignor_time' => $arr['supply_consignor_time'],
+                'supply_consignor_time' => $supply_consignor_time,
                 'supply_divider' => $arr['supply_divider'],
-                'supply_divider_time' => $arr['supply_divider_time'],
+                'supply_divider_time' => $supply_divider_time,
                 'supply_consignor2' => $arr['supply_consignor2'],
-                'supply_consignor2_time' => $arr['supply_consignor2_time']
+                'supply_consignor2_time' => $supply_consignor2_time
             );
+            /*
+              $data = array(
+              'supply_date' => $arr['supply_date'],
+              'supply_shift' => $arr['supply_shift'],
+              'supply_depart' => $arr['supply_depart'],
+              'supply_consignee' => $arr['supply_consignee'],
+              'supply_consignee_time' => $arr['supply_consignee_time'],
+              'supply_consignor' => $arr['supply_consignor'],
+              'supply_consignor_time' => $arr['supply_consignor_time'],
+              'supply_divider' => $arr['supply_divider'],
+              'supply_divider_time' => $arr['supply_divider_time'],
+              'supply_consignor2' => $arr['supply_consignor2'],
+              'supply_consignor2_time' => $arr['supply_consignor2_time']
+              );
+             */
 
             $sth->execute($data);
 
             $errorInfo = $sth->errorInfo();
+            //echo var_dump($errorInfo);
             if ($errorInfo[0] === '00000') {
                 return true;
             } else {
@@ -314,11 +459,17 @@ class Supply_Model extends Model {
     }
 
     public function updateSupplyData($arr) {
+
         // $arr['supply_consignee_time']
-        $supply_consignee_time = ($arr['supply_consignee_time'] === " " ? NULL : $arr['supply_consignee_time']);
-        $supply_consignor_time = ($arr['supply_consignor_time'] === " " ? NULL : $arr['supply_consignor_time']);
-        $supply_divider_time = ($arr['supply_divider_time'] === " " ? NULL : $arr['supply_divider_time']);
-        $supply_consignor2_time = ($arr['supply_consignor2_time'] === " " ? NULL : $arr['supply_consignor2_time']);
+        //OR $arr['supply_consignee_time'] === "0:00" 
+        //OR $arr['supply_consignor_time'] === "0:00" 
+        //OR $arr['supply_divider_time'] === "0:00" 
+        //OR $arr['supply_consignor2_time'] === "0:00" 
+
+        $supply_consignee_time = ($arr['supply_consignee_time'] === " " || $arr['supply_consignee_time'] === " 0:00" ? NULL : $arr['supply_consignee_time']);
+        $supply_consignor_time = ($arr['supply_consignor_time'] === " " || $arr['supply_consignor_time'] === " 0:00" ? NULL : $arr['supply_consignor_time']);
+        $supply_divider_time = ($arr['supply_divider_time'] === " " || $arr['supply_divider_time'] === " 0:00" ? NULL : $arr['supply_divider_time']);
+        $supply_consignor2_time = ($arr['supply_consignor2_time'] === " " || $arr['supply_consignor2_time'] === " 0:00" ? NULL : $arr['supply_consignor2_time']);
 
 
 //        if ($arr['supply_consignor2_time'] === " ") {
