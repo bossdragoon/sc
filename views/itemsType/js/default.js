@@ -2,7 +2,7 @@ $(function () {
 
     console.log('Refresh...');
     //checkDivTechStatus();
-    var perPage = 7;
+    var perPage = 20;
     var cPage = 0;
     var visiblePages = 5;
     var delay = 1000; //1 seconds
@@ -52,10 +52,10 @@ $(function () {
             strTable += '<table class = "table table-striped table-bordered table-condensed"> \n\
                         <thead> \n\
                         <tr> \n\
-                        <th> ID </th>  \n\
-                        <th> NAME </th>     \n\
-                        <th> STATUS </th>     \n\
-                        <th> MANAGE </th>   \n\
+                        <th class="text-center col-md-1"> ID </th>  \n\
+                        <th class="text-center col-md-9"> ชื่อชนิดอุปกรณ์ </th>     \n\
+                        <th class="text-center col-md-1"> สถานะ </th>     \n\
+                        <th class="text-center col-md-1"> MANAGE </th>   \n\
                         </tr>   \n\
                         </thead>    \n\
                         <tbody> ';
@@ -63,9 +63,9 @@ $(function () {
             for (var i = 0; i < o.length; i++) {
 
                 strTable += '<tr>';
-                strTable += '<td>' + o[i].items_type_id + '</td>';
+                strTable += '<td class="text-center">' + o[i].items_type_id + '</td>';
                 strTable += '<td>' + o[i].items_type_name + '</td>';
-                strTable += '<td>' + o[i].status + '</td>';
+                strTable += '<td class="text-center">' + (o[i].status === 'Y' ? '<span class="label label-success">ใช้งาน</span>' : '<span class="label label-danger">ไม่ใช้</span>') + '</td>';
                 strTable += '<td>'
                         + '<div class="btn-group" id="div_manage" >'
                         + '<a class="edit btn btn-info" rel="' + o[i].items_type_id + '" href="#" ><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>'
@@ -108,11 +108,14 @@ $(function () {
                     //$('#items_type_id').prop("readonly", true);
                     $('#items_type_id').val(o[0].items_type_id);
                     $('#items_type_name').val(o[0].items_type_name);
-                    $('#status').val(o[0].status);
+//                    $('#status').val(o[0].status);
+
+                    toggleStatusCB(o[0].status);
 
                     tmp_items_type_id = $('#items_type_id').val();
                     tmp_items_type_name = $('#items_type_name').val();
-                    tmp_status = $('#status').val();
+//                    tmp_status = $('#status').val();
+                    tmp_status = o[0].status;
 
                     $('#items_type_name').focus();
                 }, 'json');
@@ -180,7 +183,8 @@ $(function () {
             $.post('itemsType/updateByID', {
                 'items_type_id': $('#items_type_id').val(),
                 'items_type_name': $('#items_type_name').val(),
-                'status': $('#status').val()
+//                'status': $('#status').val()
+                'status': ($('#status').bootstrapSwitch('state') ? 'Y' : 'N')
             }, function (o) {
 
                 if (o.sta === 'update') {
@@ -202,7 +206,8 @@ $(function () {
             $.post('itemsType/insertByID', {
                 'items_type_id': $('#items_type_id').val(),
                 'items_type_name': $('#items_type_name').val(),
-                'status': $('#status').val()
+//                'status': $('#status').val()
+                'status': ($('#status').bootstrapSwitch('state') ? 'Y' : 'N')
             }, function (o) {
 
                 if (o.sta === 'add') {
@@ -234,7 +239,8 @@ $(function () {
         //$('#items_type_id').prop("readonly", false);
         $('#items_type_id').prop("readonly", true);
         $('#items_type_name').val("");
-        $('#status').val("");
+//        $('#status').val("");
+        toggleStatusCB();
         newData = false;
 
     }
@@ -243,7 +249,8 @@ $(function () {
     $('#btn_reset').on('click', function () {
         // $('#items_type_id').val(tmp_items_type_id);
         $('#items_type_name').val(tmp_items_type_name);
-        $('#status').val(tmp_status);
+//        $('#status').val(tmp_status);
+        toggleStatusCB(tmp_status);
 
     });
 
@@ -262,6 +269,23 @@ $(function () {
         clearEditForm();
 
     });
+    
+    $("#status").bootstrapSwitch({
+        onColor: 'success',
+        offColor: 'danger',
+        onText: 'ใช้งาน',
+        offText: 'ไม่ใช้'
+    });
 
+    function toggleStatusCB(status) {
+        var state = (status !== undefined ? status : 'Y');
+
+        if (state === 'Y') {
+            $("#status").bootstrapSwitch('state', true);
+        } else {
+            $("#status").bootstrapSwitch('state', false);
+        }
+
+    }    
 
 });

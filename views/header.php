@@ -33,6 +33,7 @@
         <link rel="stylesheet" href="<?= URL; ?>public/bootstrap-select/css/bootstrap-select.css" type="text/css"/>
         <link rel="stylesheet" href="<?= URL; ?>public/bootstrap-fileinput/css/fileinput.css" type="text/css"/>
         <link rel="stylesheet" href="<?= URL; ?>public/bootstrap-checkbox-x/css/checkbox-x.css" type="text/css"/>
+        <link rel="stylesheet" href="<?= URL; ?>public/bootstrap-switch/css/bootstrap3/bootstrap-switch.css" type="text/css"/>
 
         <link rel="stylesheet" href="<?= URL; ?>public/css/pagecss.css" type="text/css"/>
 
@@ -48,6 +49,7 @@
         <script src="<?= URL; ?>public/bootstrap-select/js/bootstrap-select.js"></script>
         <script src="<?= URL; ?>public/bootstrap-fileinput/js/fileinput.js"></script>
         <script src="<?= URL; ?>public/bootstrap-checkbox-x/js/checkbox-x.js"></script>
+        <script src="<?= URL; ?>public/bootstrap-switch/js/bootstrap-switch.js"></script>
         <script src="<?= URL; ?>public/js/bootstrap-session-timeout/dist/bootstrap-session-timeout.js"></script>
 
 
