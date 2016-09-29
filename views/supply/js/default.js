@@ -16,9 +16,14 @@ $(function () {
     var user_type;
     var visiblePages_Items = 10;
     var perPage_Items = 10;
-
+    var mode;
 
     $('#new_supply_items_order_type').val('Normal Change');
+    user_type = callUserType($('#user_type').val());
+    
+    if (user_type === 'user') {
+        $('#select_shift').prop("disabled", true);
+    }
 
     $('#group_select_dept').hide();
     $('#div_search').hide();
@@ -57,9 +62,11 @@ $(function () {
         todayBtn: "linked",
         orientation: "top"
     });
-
+    //supply_consignor
     $('#supply_consignee_time, #supply_consignor_time, #supply_divider_time, #supply_consignor2_time').timepicker({
+        timeFormat: "H:i",
         minuteStep: 1,
+        setTime: new Date(),
         template: 'modal',
         appendWidgetTo: 'body',
         showSeconds: false,
@@ -89,7 +96,7 @@ $(function () {
 
     function highlightSelButton() {
 
-        var mode = ($("#select_supply_mode").val() !== "" ? $("#select_supply_mode").val() : "send");
+        mode = ($("#select_supply_mode").val() !== "" ? $("#select_supply_mode").val() : "send");
 
         //remove highlight all button
         $('#supply_mode').find(":button").filter(function (index) {
@@ -104,7 +111,7 @@ $(function () {
 
     function callData() {
 
-        var mode = ($("#select_supply_mode").val() !== "" ? $("#select_supply_mode").val() : "send");
+        mode = ($("#select_supply_mode").val() !== "" ? $("#select_supply_mode").val() : "send");
 
         var keyword = $('#search').val(),
                 //select_dept = $('#select_dept').val(),
@@ -144,12 +151,12 @@ $(function () {
 
     function callDataItem(page, mode, depart) {
 
-        var mode = (mode !== "undefined" ? mode : "send");
+        mode = (mode !== "undefined" ? mode : "send");
         var color = '';
         var supply_date = $('#select_date').val();
         var supply_shift = $('#select_shift').val();
         depart = $('#user_dept').val();
-        user_type = callUserType($('#user_type').val());
+
         console.log('user_type:=' + user_type);
         var data = {
             'supply_depart': depart,
@@ -164,6 +171,7 @@ $(function () {
             var j = 0;
             var cnt_items = "";
             var depart_or_shift_name = "";
+            var management = "";
             var supply_consignee_name = "";
             var supply_consignee_time = "";
             var supply_consignor_name = "";
@@ -210,6 +218,18 @@ $(function () {
                     depart_or_shift_name = o[i]['depart_name'];
                 }
 
+                if (o[i].supply_id !== '0') {
+                    management = '<td>'
+                            + '<a class="edit btn btn-info" supply_id="' + o[i].supply_id + '" supply_date="' + o[i].supply_date + '" supply_shift="' + o[i].supply_shift + '" supply_depart="' + o[i].supply_depart + '" depart_name="' + o[i].depart_name + '"href="#" ><span class="glyphicon glyphicon-pencil" aria-hidden="true" title="แก้ไขรายการ"></span></a>'
+                            //+ '<a class="del btn btn-danger" rel="' + o[i].supply_id + '" data-items-name="' + o[i].items_name + '" href="#" ><span class="glyphicon glyphicon-trash" aria-hidden="true" title="ลบรายการ"></span></a>'
+                            + '<a class="print_preview btn btn-success" href="supply/print_preview/' + o[i].supply_id + '" target="_blank" title="พิมพ์"><span class="glyphicon glyphicon-print" aria-hidden="true"></span></a>'
+                            + '</td>';
+                } else {
+                    management = '<td>'
+                            + '<a class="edit btn btn-info" supply_id="' + o[i].supply_id + '" supply_date="' + o[i].supply_date + '" supply_shift="' + o[i].supply_shift + '" supply_depart="' + o[i].supply_depart + '" depart_name="' + o[i].depart_name + '"href="#" ><span class="glyphicon glyphicon-pencil" aria-hidden="true" title="แก้ไขรายการ"></span></a>'
+                            + '</td>';
+                }
+
                 //color = 'style="background-color:' + o[i].status_color + ';"';
                 strTable += '<tr class="dataTr' + o[i].data_id + ' cls" ' + color + ' >';
                 //style="background-color:#FFFFCC;" 
@@ -236,11 +256,7 @@ $(function () {
                         + '<td align="left" title="" id="' + i + '" >' + supply_divider_time + '</td>'
                         + '<td align="left" title="" id="' + i + '" >' + supply_consignor2_name + '</td>'
                         + '<td align="left" title="" id="' + i + '" >' + supply_consignor2_time + '</td>'
-                        + '<td>'
-                        + '<a class="edit btn btn-info" supply_id="' + o[i].supply_id + '" supply_date="' + o[i].supply_date + '" supply_shift="' + o[i].supply_shift + '" supply_depart="' + o[i].supply_depart + '" depart_name="' + o[i].depart_name + '"href="#" ><span class="glyphicon glyphicon-pencil" aria-hidden="true" title="แก้ไขรายการ"></span></a>'
-                        + '<a class="del btn btn-danger" rel="' + o[i].supply_id + '" data-items-name="' + o[i].items_name + '" href="#" ><span class="glyphicon glyphicon-trash" aria-hidden="true" title="ลบรายการ"></span></a>'
-                        + '<a class="print_preview btn btn-success" href="supply/print_preview/' + o[i].supply_id + '" target="_blank" title="พิมพ์"><span class="glyphicon glyphicon-print" aria-hidden="true"></span></a>'
-                        + '</td>'
+                        + management
                         + ' ';
 
                 strTable += '</tr>';
@@ -461,7 +477,7 @@ $(function () {
 
             arrSupplyHead = data;
 
-            //console.log(arrSupplyHead);
+            console.log(arrSupplyHead);
             //console.log(arrSupplyItems);
             console.log(arrSupplyItems.length);
 
@@ -469,24 +485,19 @@ $(function () {
 
                 $.post('supply/insertSupply', {'arrSupplyHead': arrSupplyHead, 'arrSupplyItems': arrSupplyItems}, function (o) {
                     if (o.resultUpdateSupply === true) {
-                        //alert('บันทึกข้อมูลเรียบร้อย');
-//                    $('.cls-partsManage').empty();
-//                    $('.cls-jobsManage').empty();
-//                    callDataJobsItems(service_id, perPage_Jobs);
-//                    callDataPartsItems(service_id, perPage_Parts);
-
                         $('.close').click();
+                        callData();
                     } else {
                         alert("บันทึกข้อมูลไม่สำเร็จ");
                     }
 
                 }, 'json');
-            }else{
+            } else {
                 alertInit('danger', 'ผิดพลาด! ไม่มีรายการเบิก-จ่าย');
                 alertShow();
             }
-            
-            
+
+
         } else {
             return false;
             exit();
@@ -498,7 +509,12 @@ $(function () {
     /*** Edit and Delete Button ***/
     $('#listingsDataSupply')
             .on('click', ".edit", function () {
-                //callItemsStatusY();
+               
+                $('#lb_supply_consignee').hide();
+                $('#lb_supply_consignor').hide();
+                $('#lb_supply_divider').hide();
+                $('#lb_supply_consignor2').hide();
+
                 $('.frm-Management-Data').modal("toggle");
                 $("#headData").collapse('show');
 
@@ -507,16 +523,20 @@ $(function () {
                 $("#btn_clear").hide();
                 $("#btn_reset").show();
 
+                clearPanelNewSupplyHead();
                 clearPanelNewSupplyItems();
                 var supply_id = $(this).attr('supply_id');
-                var supply_date = $(this).attr('supply_date');
-                var supply_shift = $(this).attr('supply_shift');
+
+                var supply_date;
+                var supply_shift;
                 var supply_depart = $(this).attr('supply_depart');
                 var depart_name = $(this).attr('depart_name');
 
                 //console.log('1.supply_depart in edit items :=' + supply_depart);
 
                 if (supply_id !== "0") {
+                    supply_date = $(this).attr('supply_date');
+                    supply_shift = $(this).attr('supply_shift');
 
                     $.get('supply/getSupplyByID', {'supply_id': supply_id, 'supply_date': supply_date, 'supply_shift': supply_shift}, function (o) {
                         //console.log(o);
@@ -525,7 +545,7 @@ $(function () {
                             $('#label_supply_id').text(o[0].supply_id);
                             $('#label_supply_depart').text(o[0].depart_name);
 
-                            $('#supply_id').val(supply_id);
+                            $('#supply_id').val(o[0].supply_id);
                             $('#supply_date').val(o[0].supply_date);
                             $('#supply_date').datepicker('update', o[0].supply_date);
 
@@ -554,14 +574,58 @@ $(function () {
                             $('#supply_date').prop("readonly", true);
                             $('#supply_shift').prop("disabled", true);
                             $('#supply_depart').prop("disabled", true);
-                            $('.selectpicker').selectpicker('render');
 
+
+                            console.log('mode:=' + mode);
+                             
+                            if (((mode === 'send') || (mode === '')) && ($('#supply_consignee').val() === '')) {
+                                $('#supply_consignee').val($('#userPerson_id').val());
+                                $('#supply_consignee_date').datepicker('setDate', new Date());
+                                $('#supply_consignee_time').timepicker('setTime', new Date());
+                                $('#lb_supply_consignee').show();
+
+                            }
+
+                            if ((mode === 'receive') && ($('#supply_consignor').val() === '')) {
+                                $('#supply_consignor').val($('#userPerson_id').val());
+                                $('#supply_consignor_date').datepicker('setDate', new Date());
+                                $('#supply_consignor_time').timepicker('setTime', new Date());
+                                 $('#lb_supply_consignor').show();
+               
+                            }
+
+                            if ((mode === 'divide') && ($('#supply_divider').val() === '')) {
+                                $('#supply_divider').val($('#userPerson_id').val());
+                                $('#supply_divider_date').datepicker('setDate', new Date());
+                                $('#supply_divider_time').timepicker('setTime', new Date());
+                                $('#lb_supply_divider').show();
+                
+                            }
+
+                            if ((mode === 'receive2') && ($('#supply_consignor2').val() === '')) {
+                                $('#supply_consignor2').val($('#userPerson_id').val());
+                                $('#supply_consignor2_date').datepicker('setDate', new Date());
+                                $('#supply_consignor2_time').timepicker('setTime', new Date());
+                                $('#lb_supply_consignor2').show();
+                                
+                            }
+
+                            $('.selectpicker').selectpicker('render'); //**** วางไว้ล่างสุด *****//
                         }
 
                     }, 'json');
                 } else {
                     //console.log('2.supply_depart in edit items :=' + supply_depart);
-                    $('#supply_date').val(supply_date); //$('#select_date').val()
+                    if (user_type !== 'user') {
+                        supply_date = $('#select_date').val();
+                        supply_shift = $('#select_shift').val();
+                    } else {
+                        supply_date = $(this).attr('supply_date');
+                        supply_shift = $(this).attr('supply_shift');
+                    }
+
+                    $('#supply_id').val(supply_id);
+                    $('#supply_date').val(supply_date);
                     $('#supply_shift').val(supply_shift);
                     $('#supply_depart').val(supply_depart);
                     $('#label_supply_id').text('new ID');
@@ -570,6 +634,15 @@ $(function () {
                     $('#supply_date').prop("readonly", true);
                     $('#supply_shift').prop("disabled", true);
                     $('#supply_depart').prop("disabled", true);
+                    
+                    if ((mode === 'send') && ($('#supply_consignee').val() === null)) {
+                        $('#supply_consignee').val($('#userPerson_id').val());
+                        $('#supply_consignee_date').datepicker('setDate', new Date());
+                        $('#supply_consignee_time').timepicker('setTime', new Date());
+                        $('#lb_supply_consignee').show();
+
+                    }
+
                     $('.selectpicker').selectpicker('render');
 
                 }
@@ -623,9 +696,9 @@ $(function () {
 
             });
 
-    function clearPanelNewSupplyItems() {
+    function clearPanelNewSupplyHead() {
         //console.log('in function clearPanelNewSupplyItems');
-        alertHide();
+        //alertHide();
 
         $('#supply_consignee').val('0');
         $('#supply_consignee_date').val('');
@@ -639,6 +712,12 @@ $(function () {
         $('#supply_consignor2').val('0');
         $('#supply_consignor2_date').val('');
         $('#supply_consignor2_time').val('0:00');
+
+    }
+
+    function clearPanelNewSupplyItems() {
+        //console.log('in function clearPanelNewSupplyItems');
+        alertHide();
 
         $('#new_items_id').val('0');
         $('#new_supply_items_send').val("0");
@@ -658,144 +737,6 @@ $(function () {
         callData();
         //return true;
     }
-
-
-//    $('#search').on('keyup', function () {
-//        clearTimeout(timer);
-//        timer = setTimeout(function () {
-//
-//            $('.cls').empty();
-//            $('#select_service_data').empty();
-//            callData();
-//        }, delay);
-//    });
-
-
-//    $('#btn_submit').on('click', function () {
-//        if (checkFormula($('#items_formula').val()) === true) {
-//            var items_code = $("#items_code").val();
-//            var items_name = $("#items_name").val();
-//            var items_formula = '';
-//
-//            if (($('#items_type').val() === 'value') || ($('#items_type').val() === null)) {
-//                items_formula = "";
-//                console.log('in items_formula = ""');
-//            } else {
-//                items_formula = $('#items_formula').val();
-//                items_formula.trim();
-//            }
-//
-//            if (items_code !== "" && items_name !== "" && newData === false) {
-//
-//                $.post('productItems/updateByID', {
-//                    'items_code': $('#items_code').val(),
-//                    'items_name': $('#items_name').val(),
-//                    'items_type': $('#items_type').val(),
-//                    'items_formula': $('#items_formula').val(),
-//                    'items_form': $('#items_form').val(),
-//                    'items_form_input': $('#items_form_input').val(),
-//                    'items_font_bold': $('#items_font_bold').val(),
-//                    'items_form_input_readonly': $('#items_form_input_readonly').val(),
-//                    'items_index': $('#items_index').val(),
-//                    'items_status': $('#items_status').val()
-//
-//                }, function (o) {
-//
-//                    if (o.sta === 'update') {
-//                        if (o.result === true) {
-//                            alert('อัพเดรตข้อมูลสำเร็จ.');
-//                        } else {
-//                            alert('อัพเดรตข้อมูลไม่สำเร็จ.');
-//                        }
-//                        $(".close").click();
-//                        callData($('#search').val(), cPage, $('#select_form').val());
-//                    }
-//
-//                }, 'json');
-//
-//
-//            } else if (items_code !== "" && items_name !== "" && newData === true) {
-//
-//                $.post('productItems/insertByID', {
-//                    'items_code': $('#items_code').val(),
-//                    'items_name': $('#items_name').val(),
-//                    'items_type': $('#items_type').val(),
-//                    'items_form': $('#items_form').val(),
-//                    'items_formula': items_formula,
-//                    'items_form_input_readonly': $('#items_form_input_readonly').val(),
-//                    'items_form_input': $('#items_form_input').val(),
-//                    'items_font_bold': $('#items_font_bold').val(),
-//                    'items_index': $('#items_index').val(),
-//                    'items_status': $('#items_status').val()
-//                }, function (o) {
-//
-//                    if (o.sta === 'add') {
-//                        if (o.result === true) {
-//                            alert('เพิ่มข้อมูลสำเร็จ.');
-//                        } else {
-//                            alert('เพิ่มข้อมูลไม่สำเร็จ.');
-//                        }
-//                        $(".close").click();
-//                        callData($('#search').val(), cPage, $('#select_form').val());
-//                    }
-//
-//                }, 'json');
-//
-//            } else {
-//                alertInit('danger', 'ผิดพลาด! ไม่สามารถเพิ่มหรือแก้ไขข้อมูลได้...');
-//                alertShow();
-//
-//            }
-//            return false;
-//        }
-//        return false;
-//
-//    });
-
-
-
-
-
-
-//    $('#btn_reset').on('click', function () {
-//
-//        $('#items_code').val(tmp_items_code);
-//        $('#items_name').val(tmp_items_name);
-//        $('#items_type').val(tmp_items_type);
-//        $('#items_formula').val(tmp_items_formula);
-//        $('#items_form').val(tmp_items_form);
-//        $('#items_form_input').val(tmp_items_form_input);
-//        $('#items_form_input_readonly').val(tmp_items_form_input_readonly);
-//        $('#items_font_bold').val(tmp_items_font_bold);
-//        $('#items_index').val(tmp_items_index);
-//        $('#items_status').val(tmp_items_status);
-//
-//    });
-
-
-//    $('#choose-items').on('click', function () {
-//        callDataItems();
-//
-//    });
-//
-//    $('#select_form').on('change', function () {
-//        callData('', 1, $('#select_form').val());
-//        callItemsStatusY();
-//
-//    });
-//
-//
-//    $('#items_type').on('change', function () {
-//        checkItemsType();
-//
-//    });
-//
-//
-//    $('#btn_chk_formula').on('click', function () {
-//        checkFormula($('#items_formula').val());
-//        return true;
-//
-//    });
 
 
 });

@@ -13,8 +13,6 @@ class Supply extends Controller {
             'products/css/default.css'
         );
 
-
-
         $this->view->js = array('supply/js/default.js',
             '../public/bootstrap-datetimepicker/js/bootstrap-datepicker.js',
             '../public/bootstrap-datetimepicker/locales/bootstrap-datepicker.th.min.js',
@@ -49,15 +47,15 @@ class Supply extends Controller {
     }
 
     function getListings() {
-        if(filter_input(INPUT_GET, 'user_type') === 'user'){
+        if (filter_input(INPUT_GET, 'user_type') === 'user') {
             $data = $this->model->getDataListingsByDepart();
-        }else{
+        } else {
             $data = $this->model->getDataListings();
         }
-        //echo filter_input(INPUT_GET, 'user_type');
+        //echo filter_input(INPUT_GET, 'supply_mode');
         echo json_encode($data);
     }
- 
+
     function Pagination($model = NULL) {
         if ($model) {
             $this->loadModel($model);
@@ -117,7 +115,7 @@ class Supply extends Controller {
     }
 
     function insertSupply() {
-        // var_dump($_POST['arrSupplyHead']);
+        //var_dump($_POST['arrSupplyHead']);
         //var_dump($_POST['arrSupplyItems']);
 
         $arrSupplyHead = $_POST['arrSupplyHead'];
@@ -128,21 +126,24 @@ class Supply extends Controller {
         $resultSupplyHead = true;
         $resultSupplyItems = true;
 
-
-        /* *** Supply *** */
+       // var_dump($arrSupplyHead);
+        /*         * ** Supply *** */
         if (sizeof($_POST['arrSupplyHead']) > 0) {
-           
+           // var_dump($arrSupplyHead[0]["supply_date"]);
+            $i = 1;
             foreach ($arrSupplyHead as $k => $v) {
+               // var_dump($i);
+                $i = $i+1;
                 //echo 'supply_id:='+$v["supply_id"]+'....' ;
 
-                if ($v["supply_id"] === "0") {
+                if ($v["supply_id"] === "0" || $v["supply_id"] === "") {
                     //var_dump('in insertSupplyData');
                     $content = $v["supply_date"] . $v["supply_shift"] . $v["supply_depart"];
-                    var_dump($this->model->getDataSupplyIdByContent($content));
+                    //var_dump($this->model->getDataSupplyIdByContent($content));
                     if ($this->model->getDataSupplyIdByContent($content) === NULL) {
                         
                         $result = $this->model->insertSupplyData($v);
-                        if ($resultSupplyHead !== false) {
+                        if ($result !== false) {
                             $resultSupplyHead = $result;
                             $supply_id = $this->model->getDataSupplyIdByContent($content);
                             //var_dump('$supply_id insertSupplyData:=' + $supply_id);
@@ -191,9 +192,9 @@ class Supply extends Controller {
                 }
             }
         }
-        if($resultSupplyHead === true && $resultSupplyItems === true){
+        if ($resultSupplyHead === true && $resultSupplyItems === true) {
             $result2 = true;
-        }else{
+        } else {
             $result2 = false;
         }
         $data = array('resultUpdateSupply' => $result2, 'resultSupplyHead' => $resultSupplyHead, 'resultSupplyItems' => $resultSupplyItems);

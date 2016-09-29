@@ -37,8 +37,8 @@ $active = ' class="active"';
                                     ?>
                                 </select>
                             </div>
-                           <div class="col-lg-2">
-                                <button type="button" id="btn_calData" class="btn btn-primary col-lg-12">Call Data</button> 
+                            <div class="col-lg-2">
+                                 <button type="button" id="btn_calData" class="btn btn-primary col-lg-12">Call Data</button> 
                             </div>
                         </div>                        
                     </div>
@@ -171,7 +171,7 @@ $active = ' class="active"';
                                         </div>
                                         <br>
                                         <div class='row'>
-                                            <div class='col-xs-6 col-lg-2 text-left'><strong>ส่งอุปกรณ์ :</strong></div>
+                                            <div class='col-xs-6 col-lg-2 text-left'><strong>ส่งอุปกรณ์ :</strong><label id="lb_supply_consignee"><font color="red">Default</font></label></div>
                                             <div class='col-xs-6 col-lg-4 text-left'> 
                                                 <select class="form-control  selectpicker" id="supply_consignee" name="supply_consignee" data-live-search="true" >
                                                     <option value="">- - เลือก - -</option>
@@ -194,7 +194,7 @@ $active = ' class="active"';
                                         </div>
                                         <br>
                                         <div class='row'>  
-                                            <div class='col-xs-6 col-lg-2 text-left'><strong>รับอุปกรณ์ :</strong></div>
+                                            <div class='col-xs-6 col-lg-2 text-left'><strong>รับอุปกรณ์ :</strong><label id="lb_supply_consignor"><font color="red">Default</font></label></div>
                                             <div class='col-xs-6 col-lg-4 text-left'>
                                                 <select class="form-control  selectpicker" id="supply_consignor" name="supply_consignor" data-live-search="true">
                                                     <option value="">- - เลือก - -</option>
@@ -217,16 +217,16 @@ $active = ' class="active"';
                                         </div>
                                         <br>
                                         <div class='row'>
-                                            <div class='col-xs-6 col-lg-2 text-left'><strong>จ่ายอุปกรณ์ :</strong></div>
+                                            <div class='col-xs-6 col-lg-2 text-left'><strong>จ่ายอุปกรณ์ :</strong><label id="lb_supply_divider"><font color="red">Default</font></label></div>
                                             <div class='col-xs-6 col-lg-4 text-left'>
-                                                <select class="form-control  selectpicker" id="supply_divider" name="supply_divider" data-live-search="true">
+                                               <select class="form-control  selectpicker" id="supply_divider" name="supply_divider" data-live-search="true">
                                                     <option value="">- - เลือก - -</option>
                                                     <?php
                                                     foreach ($this->getPersonalSupplyDivider as $value) {
                                                         echo "<option value='{$value[person_id]}' >{$value[person_name]}</option>";
                                                     }
                                                     ?>
-                                                </select>
+                                                </select> 
                                             </div>
                                             <div class='col-xs-6 col-lg-4 text-left'>
                                                 <input type="text" id="supply_divider_date" name="supply_divider_date" class="form-control" value="<?= date('Y-m-d') ?>" /> 
@@ -240,7 +240,7 @@ $active = ' class="active"';
                                         </div>
                                         <br>
                                         <div class='row'>
-                                            <div class='col-xs-6 col-lg-2 text-left'><strong>รับอุปกรณ์ปราศเชื้อ :</strong></div>
+                                            <div class='col-xs-6 col-lg-2 text-left'><strong>รับอุปกรณ์ปราศเชื้อ :</strong><label id="lb_supply_consignor2"><font color="red">Default</font></label></div>
                                             <div class='col-xs-6 col-lg-4 text-left'>
                                                 <select class="form-control  selectpicker" id="supply_consignor2" name="supply_consignor2" data-live-search="true">
                                                     <option value="">- - เลือก - -</option>

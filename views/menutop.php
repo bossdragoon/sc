@@ -27,7 +27,9 @@ $active = ' class="active"';
                    <li <?= ($this->pageMenu == 'supply') ? $active : ''; ?>>
                         <a href="<?= URL; ?>supply"><span class="glyphicon glyphicon-edit"></span> เบิก-จ่ายอุปกรณ์</a>
                     </li>
-                   
+                   <li <?= ($this->pageMenu == 'report') ? $active : ''; ?>>
+                       <a href="reports"><span class="glyphicon glyphicon-stats"></span> รายงาน</a>
+                   </li>
                     <?php  if(like_match('%admin%',$User['Supply_system']) == TRUE){ ?>
                         
                         <li <?= ($this->pageMenu == 'hardware' || $this->pageMenu == 'hardware_type' || $this->pageMenu == 'symptom' || $this->pageMenu == 'depart' || $this->pageMenu == 'technician' || $this->pageMenu == 'service_status' || $this->pageMenu == 'store' || $this->pageMenu == 'store_type' || $this->pageMenu == 'items') ? $active : ''; ?> class="dropdown">

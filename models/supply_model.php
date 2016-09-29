@@ -32,8 +32,8 @@ class Supply_Model extends Model {
 
         switch ($mode) {
             case "send": $sqlCondition .= "";
-                if ($user_type <> "user") {
-                    $UNION = " UNION
+                //if ($user_type <> "user") {
+                $UNION = " UNION
                         SELECT 
                         depart_id as supply_depart,
                         depart_name,
@@ -72,7 +72,7 @@ class Supply_Model extends Model {
                         {$sqlShift}
                         {$sqlDept}
                         )";
-                }
+                // }
                 break;
             case "receive": $sqlCondition .= "AND (s.supply_consignee <> '' OR s.supply_consignee <> '') AND (s.supply_consignor = '' OR s.supply_consignor = '') ";
                 break;
@@ -173,6 +173,86 @@ class Supply_Model extends Model {
 
     function getDataListingsByDepart() {
 
+        $UNION = "";
+        $mode = filter_input(INPUT_GET, 'supply_mode');
+
+        switch ($mode) {
+            case "send": $sqlCondition .= "";
+                $UNION = "  UNION
+                                SELECT 
+                                    depart_id as supply_depart,
+                                    depart_name,
+                                    0 as supply_id,
+                                    '{$_GET['supply_date']}' as supply_date,
+                                    'morning' as supply_shift,
+                                    '' as supply_consignee,
+                                    '' as supply_consignee_name,
+                                    null as supply_consignee_time,
+                                    '' as supply_consignor,
+                                    '' as supply_consignor_name,
+                                    null as supply_consignor_time,
+                                    '' as supply_divider,
+                                    '' as supply_divider_name,
+                                    null as supply_divider_time,
+                                    '' as supply_consignor2,
+                                    '' as supply_consignor2_name,
+                                    null as supply_consignor2_time,
+                                    0 as supply_items_id,
+                                    0 as supply_items_send,
+                                    0 as supply_items_receive,
+                                    0 as supply_items_divide,
+                                    0 as supply_items_remain,
+                                    0 as supply_items_order_type,
+                                    0 as cnt_items,
+                                    '' as hos_guid,
+                                    'not_send' as supply_status,
+                                    'none' as step_status
+                                    FROM supply_depart
+                                    WHERE 1 = 1 
+                                    AND depart_id = '{$_GET['supply_depart']}'  
+                            UNION
+                                    SELECT 
+                                    depart_id as supply_depart,
+                                    depart_name,
+                                    0 as supply_id,
+                                    '{$_GET['supply_date']}' as supply_date,
+                                    'afternoon' as supply_shift,
+                                    '' as supply_consignee,
+                                    '' as supply_consignee_name,
+                                    null as supply_consignee_time,
+                                    '' as supply_consignor,
+                                    '' as supply_consignor_name,
+                                    null as supply_consignor_time,
+                                    '' as supply_divider,
+                                    '' as supply_divider_name,
+                                    null as supply_divider_time,
+                                    '' as supply_consignor2,
+                                    '' as supply_consignor2_name,
+                                    null as supply_consignor2_time,
+                                    0 as supply_items_id,
+                                    0 as supply_items_send,
+                                    0 as supply_items_receive,
+                                    0 as supply_items_divide,
+                                    0 as supply_items_remain,
+                                    0 as supply_items_order_type,
+                                    0 as cnt_items,
+                                    '' as hos_guid,
+                                    'not_send' as supply_status,
+                                    'none' as step_status
+                                    FROM supply_depart
+                                    WHERE 1 = 1 
+                                    AND depart_id = '{$_GET['supply_depart']}' ";
+
+                break;
+            case "receive": $sqlCondition .= "AND (s.supply_consignee <> '' OR s.supply_consignee <> '') AND (s.supply_consignor = '' OR s.supply_consignor = '') ";
+                break;
+            case "divide": $sqlCondition .= "AND (s.supply_consignee <> '' OR s.supply_consignee <> '') AND (s.supply_consignor <> '' OR s.supply_consignor <> '') AND (s.supply_divider = '' OR s.supply_divider = '') ";
+                break;
+            case "receive2": $sqlCondition .= "AND (s.supply_consignee <> '' OR s.supply_consignee <> '') AND (s.supply_consignor <> '' OR s.supply_consignor <> '') AND (s.supply_divider <> '' OR s.supply_divider <> '') AND (s.supply_consignor2 = '' ) ";
+                break;
+            default : break;
+        }
+
         $sql = "    SELECT * FROM (SELECT 
                         s.supply_depart,
                         d.depart_name,
@@ -215,77 +295,17 @@ class Supply_Model extends Model {
                         LEFT OUTER JOIN personal AS p4 ON p4.person_id = s.supply_consignor2
                         WHERE 1 = 1
                         AND s.supply_date = '{$_GET['supply_date']}'  
-                        AND s.supply_depart = '{$_GET['supply_depart']}'  
+                        AND s.supply_depart = '{$_GET['supply_depart']}' 
+                            $sqlCondition
                         GROUP BY si.supply_id
+                        {$UNION}
 
-               UNION
-                    SELECT 
-                        depart_id as supply_depart,
-                        depart_name,
-                        0 as supply_id,
-                        '{$_GET['supply_date']}' as supply_date,
-                        'morning' as supply_shift,
-                        '' as supply_consignee,
-                        '' as supply_consignee_name,
-                        null as supply_consignee_time,
-                        '' as supply_consignor,
-                        '' as supply_consignor_name,
-                        null as supply_consignor_time,
-                        '' as supply_divider,
-                        '' as supply_divider_name,
-                        null as supply_divider_time,
-                        '' as supply_consignor2,
-                        '' as supply_consignor2_name,
-                        null as supply_consignor2_time,
-                        0 as supply_items_id,
-                        0 as supply_items_send,
-                        0 as supply_items_receive,
-                        0 as supply_items_divide,
-                        0 as supply_items_remain,
-                        0 as supply_items_order_type,
-                        0 as cnt_items,
-                        '' as hos_guid,
-                        'not_send' as supply_status,
-                        'none' as step_status
-                        FROM supply_depart
-                        WHERE 1 = 1 
-                        AND depart_id = '{$_GET['supply_depart']}'  
-		UNION
-                        SELECT 
-                        depart_id as supply_depart,
-                        depart_name,
-                        0 as supply_id,
-                        '{$_GET['supply_date']}' as supply_date,
-                        'afternoon' as supply_shift,
-                        '' as supply_consignee,
-                        '' as supply_consignee_name,
-                        null as supply_consignee_time,
-                        '' as supply_consignor,
-                        '' as supply_consignor_name,
-                        null as supply_consignor_time,
-                        '' as supply_divider,
-                        '' as supply_divider_name,
-                        null as supply_divider_time,
-                        '' as supply_consignor2,
-                        '' as supply_consignor2_name,
-                        null as supply_consignor2_time,
-                        0 as supply_items_id,
-                        0 as supply_items_send,
-                        0 as supply_items_receive,
-                        0 as supply_items_divide,
-                        0 as supply_items_remain,
-                        0 as supply_items_order_type,
-                        0 as cnt_items,
-                        '' as hos_guid,
-                        'not_send' as supply_status,
-                        'none' as step_status
-                        FROM supply_depart
-                        WHERE 1 = 1 
-                        AND depart_id = '{$_GET['supply_depart']}' 
+               
           ) as x
                 WHERE x.supply_shift is not NULL
 		GROUP BY x.supply_depart, x.supply_date, x.supply_shift
-		ORDER BY x.supply_shift desc";
+		ORDER BY FIELD(x.supply_shift,'morning','afternoon')";
+
 
         //echo $sql;
         $data = $this->db->select($sql);
@@ -296,14 +316,23 @@ class Supply_Model extends Model {
         $sql = "SELECT
                     s.supply_id, s.supply_date, s.supply_shift, s.supply_depart, d.depart_name, s.supply_consignee,
                     CONCAT( p1.person_firstname,' ', p1.person_lastname) AS supply_consignee_name,
-                    date(s.supply_consignee_time) as supply_consignee_date, time(s.supply_consignee_time) as supply_consignee_time, s.supply_consignor,
+                    DATE(s.supply_consignee_time)as supply_consignee_date, 
+                    DATE_FORMAT(s.supply_consignee_time, '%H:%i') as supply_consignee_time, 
+                    s.supply_consignor,
                     CONCAT(p2.person_firstname,' ',p2.person_lastname) AS supply_consignor_name,
-                    date(s.supply_consignor_time) as supply_consignor_date, time(s.supply_consignor_time) as supply_consignor_time, s.supply_divider,
+                    
+                    DATE(s.supply_consignor_time) as supply_consignor_date, 
+                    DATE_FORMAT(s.supply_consignor_time, '%H:%i') as supply_consignor_time, 
+                    
+                    s.supply_divider,
                     CONCAT(p3.person_firstname,' ',p3.person_lastname) AS supply_divider_name,
-                    date(s.supply_divider_time) as supply_divider_date,  time(s.supply_divider_time) as supply_divider_time, s.supply_consignor2,
+                    DATE(s.supply_divider_time) as supply_divider_date,  
+                    DATE_FORMAT(s.supply_divider_time, '%H:%i') as supply_divider_time, 
+                    s.supply_consignor2,
                     CONCAT(p4.person_firstname,' ',p4.person_lastname) AS supply_consignor2_name,
-                    date(s.supply_consignor2_time) as supply_consignor2_date,
-                    time(s.supply_consignor2_time) as supply_consignor2_time,
+                    DATE(s.supply_consignor2_time) as supply_consignor2_date,
+                    DATE_FORMAT(s.supply_consignor2_time, '%H:%i') as supply_consignor2_time,
+
                     count(si.items_id) AS cnt_items
                 FROM supply_items AS si
                 LEFT OUTER JOIN supply AS s ON s.supply_id = si.supply_id
@@ -367,14 +396,14 @@ class Supply_Model extends Model {
         $sql = "SELECT
                     s.supply_id, DATE_FORMAT(s.supply_date + INTERVAL 543 YEAR,'%d-%m-%Y') as supply_date, s.supply_shift, s.supply_depart, d.depart_name, s.supply_consignee,
                     CONCAT( p1.person_firstname,' ', p1.person_lastname) AS supply_consignee_name,
-                    DATE_FORMAT(date(s.supply_consignee_time) + INTERVAL 543 YEAR,'%d-%m-%Y') as supply_consignee_date, time(s.supply_consignee_time) as supply_consignee_time, s.supply_consignor,
+                    DATE_FORMAT(date(s.supply_consignee_time) + INTERVAL 543 YEAR,'%d-%m-%Y') as supply_consignee_date, DATE_FORMAT(s.supply_consignee_time, '%H:%i') as supply_consignee_time, s.supply_consignor,
                     CONCAT(p2.person_firstname,' ',p2.person_lastname) AS supply_consignor_name,
-                    DATE_FORMAT(date(s.supply_consignor_time) + INTERVAL 543 YEAR,'%d-%m-%Y') as supply_consignor_date, time(s.supply_consignor_time) as supply_consignor_time, s.supply_divider,
+                    DATE_FORMAT(date(s.supply_consignor_time) + INTERVAL 543 YEAR,'%d-%m-%Y') as supply_consignor_date, DATE_FORMAT(s.supply_consignor_time, '%H:%i') as supply_consignor_time, s.supply_divider,
                     CONCAT(p3.person_firstname,' ',p3.person_lastname) AS supply_divider_name,
-                    DATE_FORMAT(date(s.supply_divider_time) + INTERVAL 543 YEAR,'%d-%m-%Y') as supply_divider_date,  time(s.supply_divider_time) as supply_divider_time, s.supply_consignor2,
+                    DATE_FORMAT(date(s.supply_divider_time) + INTERVAL 543 YEAR,'%d-%m-%Y') as supply_divider_date,  DATE_FORMAT(s.supply_divider_time, '%H:%i') as supply_divider_time, s.supply_consignor2,
                     CONCAT(p4.person_firstname,' ',p4.person_lastname) AS supply_consignor2_name,
                     DATE_FORMAT(date(s.supply_consignor2_time) + INTERVAL 543 YEAR,'%d-%m-%Y') as supply_consignor2_date,
-                    time(s.supply_consignor2_time) as supply_consignor2_time,
+                    DATE_FORMAT(s.supply_consignor2_time, '%H:%i') as supply_consignor2_time,
                     count(si.items_id) AS cnt_items
                 FROM supply_items AS si
                 LEFT OUTER JOIN supply AS s ON s.supply_id = si.supply_id
@@ -403,6 +432,7 @@ class Supply_Model extends Model {
     }
 
     public function insertSupplyData($arr) {
+        //echo var_dump($arr);
 
         $supply_consignee_time = ($arr['supply_consignee_time'] === " " || $arr['supply_consignee_time'] === " 0:00" ? NULL : $arr['supply_consignee_time']);
         $supply_consignor_time = ($arr['supply_consignor_time'] === " " || $arr['supply_consignor_time'] === " 0:00" ? NULL : $arr['supply_consignor_time']);
@@ -429,26 +459,11 @@ class Supply_Model extends Model {
                 'supply_consignor2' => $arr['supply_consignor2'],
                 'supply_consignor2_time' => $supply_consignor2_time
             );
-            /*
-              $data = array(
-              'supply_date' => $arr['supply_date'],
-              'supply_shift' => $arr['supply_shift'],
-              'supply_depart' => $arr['supply_depart'],
-              'supply_consignee' => $arr['supply_consignee'],
-              'supply_consignee_time' => $arr['supply_consignee_time'],
-              'supply_consignor' => $arr['supply_consignor'],
-              'supply_consignor_time' => $arr['supply_consignor_time'],
-              'supply_divider' => $arr['supply_divider'],
-              'supply_divider_time' => $arr['supply_divider_time'],
-              'supply_consignor2' => $arr['supply_consignor2'],
-              'supply_consignor2_time' => $arr['supply_consignor2_time']
-              );
-             */
 
             $sth->execute($data);
 
             $errorInfo = $sth->errorInfo();
-            //echo var_dump($errorInfo);
+            // echo var_dump($errorInfo);
             if ($errorInfo[0] === '00000') {
                 return true;
             } else {
