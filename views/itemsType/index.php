@@ -31,16 +31,22 @@ $active = ' class="active"';
                                 <input type="text" id="items_type_name" name="items_type_name" class="form-control" autocomplete="off" />
                             </div>
                         </div>
-                        <div class="form-group">
+<!--                        <div class="form-group">
                             <label class="control-label col-sm-2" for="div_status">STATUS :</label>
                             <div class="col-sm-7" id="div_status" name="div_status">
                                 <select class="form-control" id="status" name="status">
                                     <?php
-                                    foreach ($this->getStatus as $value) {
-                                        echo "<option value='{$value}' >{$value}</option>";
-                                    }
+//                                    foreach ($this->getStatus as $value) {
+//                                        echo "<option value='{$value}' >{$value}</option>";
+//                                    }
                                     ?>
                                 </select>
+                            </div>
+                        </div>-->
+                        <div class="form-group">
+                            <label class="control-label col-sm-2" for="div_status">สถานะ :</label>
+                            <div class="col-sm-7" id="div_status" name="div_status">
+                                <input type="checkbox" id="status" name="status" checked>
                             </div>
                         </div>
                     </div>
